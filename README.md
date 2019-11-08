@@ -1,6 +1,6 @@
-##Travelling Salesman Problem (Project Part 1)
+## Travelling Salesman Problem (Project Part 1)
 
-#Project Target
+# Project Target
 
 Find optimal solution for TSP using :
 
