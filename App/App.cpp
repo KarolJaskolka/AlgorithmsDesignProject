@@ -18,17 +18,17 @@ int main()
 
 	int bestPath;
 
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < 8; i++) {
 
 		TSP *tsp = new TSP(files[i]);
 		
-		timer->start();
-		bestPath = tsp->nearestNeighbour(0);
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Nearest Neighbour [0] : " << bestPath << endl;
-		tsp->showTempPath();
+		//timer->start();
+		//bestPath = tsp->nearestNeighbour(0);
+		//timer->stop();
+		//cout << "--------------------------------------------------------------------------------------------------\n";
+		//cout << "Time : " << timer->result() << " ms | ";
+		//cout << "Nearest Neighbour [0] : " << bestPath << endl;
+		//tsp->showTempPath();
 
 		timer->start();
 		bestPath = tsp->kNearestNeighbour();
@@ -44,7 +44,9 @@ int main()
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
 		cout << "Branch And Bound : " << bestPath << endl;
-		tsp->showPathBnB();
+		tsp->showBestPath();
+
+		/*
 
 		timer->start();
 		bestPath = tsp->bruteForceSTL();
@@ -53,7 +55,7 @@ int main()
 		cout << "Time : " << timer->result() << " ms | ";
 		cout << "Brute Force (STL) : " << bestPath << endl;
 		tsp->showBestPath();
-
+		
 		timer->start();
 		bestPath = tsp->bruteForceSwap();
 		timer->stop();
@@ -63,14 +65,20 @@ int main()
 		tsp->showBestPath();
 
 		timer->start();
+		bestPath = tsp->bruteForceTreeFaster();
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Brute Force (Tree Faster): " << bestPath << endl;
+		tsp->showBestPath();
+
+		timer->start();
 		bestPath = tsp->bruteForceTree();
 		timer->stop();
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
 		cout << "Brute Force (Tree): " << bestPath << endl;
 		tsp->showBestPath();
-
-		/*
 
 		timer->start();
 		bestPath = tsp->BranchAndBoundPenalty();
@@ -94,6 +102,7 @@ int main()
 		delete tsp;
 		
 	}
+
 
 	return 0;
 }

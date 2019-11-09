@@ -26,6 +26,7 @@ TSP::TSP(std::string fileName)
 TSP::~TSP()
 {
 	delete problem;
+	delete reducedProblem;
 }
 
 // Nearest Neighbour Algorithm Implementation
@@ -144,7 +145,6 @@ int TSP::BranchAndBound()
 					best = matrix;
 					nextStart = i;
 				}
-
 			}
 		}
 
@@ -180,6 +180,11 @@ int TSP::BranchAndBound()
 		//reducedProblem->showPath();
 
 	}
+
+	bestPath = reducedProblem->path;
+
+	oldResults.clear();
+	oldResults.shrink_to_fit();
 
 	return lowerBound;
 }
@@ -239,6 +244,8 @@ int TSP::bruteForceSTL()
 
 	} while (std::next_permutation(order + 1, order + problem->size));
 
+	delete order;
+
 	return min;
 }
 
@@ -248,6 +255,18 @@ int TSP::bruteForceTree()
 	vector<int> order;
 	int min = 2147483647; // integer max value
 	myPermutationTree(0, order, min);
+	return min;
+}
+
+// Brute Force Implementation (Tree Faster)
+int TSP::bruteForceTreeFaster() {
+	vector<int> order;
+	vector<int> next;
+	for (int i = 1; i < problem->size; i++) {
+		next.push_back(i);
+	}
+	int min = 2147483647; // integer max value
+	myPermutationTreeFaster(0, order, next,  min);
 	return min;
 }
 
@@ -276,11 +295,6 @@ void TSP::showBestPath() {
 		std::cout << bestPath[i] << " -> ";
 	}
 	std::cout << bestPath[0] << endl;
-}
-
-// show path for (BnB algorithm)
-void TSP::showPathBnB() {
-	reducedProblem->showPath();
 }
 
 // show best path (NN algorithm)
@@ -333,6 +347,39 @@ void TSP::myPermutationTree(int start, vector<int> order, int &min) {
 		}
 	}
 
+}
+
+// own permutation (size-1)! times, first digit is start (Faster)
+void TSP::myPermutationTreeFaster(int start, std::vector<int> order, std::vector<int> next, int &min) {
+
+	order.push_back(start);
+
+	next.erase(std::remove(next.begin(), next.end(), start), next.end());
+
+	if (next.size() == 0) {
+
+		int length = 0;
+
+		for (int j = 0; j < problem->size - 1; j++) {
+			length += problem->matrix[order[j]][order[j + 1]];
+		}
+
+		length += problem->matrix[order[problem->size - 1]][order[0]];
+
+		if (length < min) {
+			bestPath.clear();
+			for (int i = 0; i < problem->size; i++) {
+				bestPath.push_back(order[i]);
+			}
+			min = length;
+		}
+
+		return;
+	}
+
+	for (int i = 0; i < next.size(); i++) {
+		myPermutationTreeFaster(next[i], order, next, min);
+	}
 }
 
 // swap permutation
@@ -434,4 +481,3 @@ Matrix* TSP::findBetter(std::vector<Matrix*> &list, Matrix *best, Matrix *reduce
 	}
 	return reduced;
 }
-

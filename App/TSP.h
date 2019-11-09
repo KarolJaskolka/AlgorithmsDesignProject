@@ -13,6 +13,7 @@ private:
 	std::vector<int> tempPath;
 
 	void myPermutationTree(int start, std::vector<int> order, int &min);
+	void myPermutationTreeFaster(int start, std::vector<int> order, std::vector<int> next, int &min);
 	void myPermutationSwap(std::vector<int> order, int left, int right, int &min);
 	int *generateOrder(int n);
 	bool isVisited(std::vector<int> visited, int city);
@@ -35,6 +36,7 @@ public:
 	int BranchAndBoundPenalty(); // does not work properly
 	int bruteForceSTL();
 	int bruteForceTree();
+	int bruteForceTreeFaster();
 	int bruteForceSwap();
 	int HeldKarp(); // not implemented yet
 	
@@ -42,7 +44,6 @@ public:
 	void showBestPath();
 	void showTempPath();
 	void showPointPath();
-	void showPathBnB();
 
 };
 
