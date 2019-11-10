@@ -12,6 +12,8 @@ private:
 	std::vector<int> bestPath;
 	std::vector<int> tempPath;
 
+	// private methods
+
 	void myPermutationTree(int start, std::vector<int> order, int &min);
 	void myPermutationTreeFaster(int start, std::vector<int> order, std::vector<int> next, int &min);
 	void myPermutationSwap(std::vector<int> order, int left, int right, int &min);
@@ -23,13 +25,16 @@ private:
 public:
 
 	// constructors
+
 	TSP();
 	TSP(std::string fileName);
 
 	// destructor
+
 	~TSP();
 
 	// algorithms
+
 	int nearestNeighbour(int start);
 	int kNearestNeighbour();
 	int BranchAndBound();
@@ -41,6 +46,7 @@ public:
 	int HeldKarp(); // not implemented yet
 	
 	// paths' display methods
+
 	void showBestPath();
 	void showTempPath();
 	void showPointPath();

@@ -225,6 +225,8 @@ int TSP::bruteForceSTL()
 	// size! times
 	do {
 
+		// ------------ PATH LENGTH ------------
+
 		length = 0;
 
 		for (int j = 0; j < problem->size - 1; j++) {
@@ -241,6 +243,8 @@ int TSP::bruteForceSTL()
 			}
 
 		}
+
+		// ------------ PATH LENGTH ------------
 
 	} while (std::next_permutation(order + 1, order + problem->size));
 
@@ -321,6 +325,8 @@ void TSP::myPermutationTree(int start, vector<int> order, int &min) {
 
 	if (order.size() == problem->size) {
 
+		// ------------ PATH LENGTH ------------
+
 		int length = 0;
 
 		for (int j = 0; j < problem->size - 1; j++) {
@@ -336,6 +342,8 @@ void TSP::myPermutationTree(int start, vector<int> order, int &min) {
 			}
 			min = length;
 		}
+
+		// ------------ PATH LENGTH ------------
 
 		return;
 	}
@@ -358,6 +366,8 @@ void TSP::myPermutationTreeFaster(int start, std::vector<int> order, std::vector
 
 	if (next.size() == 0) {
 
+		// ------------ PATH LENGTH ------------
+
 		int length = 0;
 
 		for (int j = 0; j < problem->size - 1; j++) {
@@ -373,6 +383,8 @@ void TSP::myPermutationTreeFaster(int start, std::vector<int> order, std::vector
 			}
 			min = length;
 		}
+
+		// ------------ PATH LENGTH ------------
 
 		return;
 	}
@@ -387,6 +399,8 @@ void TSP::myPermutationSwap(vector<int> order, int left, int right, int &min) {
 
 	if (left == right) {
 
+		// ------------ PATH LENGTH ------------
+
 		int length = 0;
 
 		for (int j = 0; j < problem->size - 1; j++) {
@@ -402,6 +416,8 @@ void TSP::myPermutationSwap(vector<int> order, int left, int right, int &min) {
 			}
 			min = length;
 		}
+
+		// ------------ PATH LENGTH ------------
 
 		return;
 	}

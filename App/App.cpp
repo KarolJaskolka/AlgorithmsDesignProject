@@ -79,21 +79,14 @@ int main()
 		cout << "Time : " << timer->result() << " ms | ";
 		cout << "Brute Force (Tree): " << bestPath << endl;
 		tsp->showBestPath();
-
+		
 		timer->start();
-		bestPath = tsp->BranchAndBoundPenalty();
+		bestPath = tsp->BranchAndBoundPenalty(); // does not work properly
 		timer->stop();
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
 		cout << "Branch And Bound Penalty : " << bestPath << endl;
 		tsp->showPointPath();
-
-		timer->start();
-		bestPath = tsp->HeldKarp();
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Held Karp bestPath : " << bestPath << endl;
 		
 		*/
 
