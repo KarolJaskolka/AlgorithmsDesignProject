@@ -14,12 +14,14 @@ using namespace std;
 TSP::TSP()
 {
 	problem = NULL;
+	reducedProblem = NULL;
 }
 
 // constructor (load problem from file)
 TSP::TSP(std::string fileName)
 {
 	problem = new Matrix(fileName);
+	reducedProblem = NULL;
 }
 
 // destructor
@@ -99,28 +101,35 @@ int TSP::kNearestNeighbour()
 }
 
 // Branch And Bound Algorithm Implementation
-int TSP::BranchAndBound()
+int TSP::BranchAndBound(bool kNN)
 {
-	int id = 1;
-	int length = 0;
-	int start = 0;
+	int id = 1; // used to remove best matrix from memory
+	int start = 0; 
 	int nextStart = 0;
+	int upperBound;
+	int lowerBound;
 
-	vector<Matrix*> oldResults;
+	vector<Matrix*> oldResults; // memory
 
-	delete reducedProblem;
+	delete reducedProblem; 
 
-	reducedProblem = new Matrix(problem);
+	reducedProblem = new Matrix(problem); // init
 
-	//int upperBound = nearestNeighbour(start);
-	int upperBound = kNearestNeighbour();
-	int lowerBound = reducedProblem->reduceMatrix();
+	// choose upper bound algorithm
+	if (kNN) {
+		upperBound = kNearestNeighbour();
+	}
+	else {
+		upperBound = nearestNeighbour(start);
+	}
+	
+	lowerBound = reducedProblem->reduceMatrix(); // reduce matrix
 
-	reducedProblem->path.push_back(start);
+	reducedProblem->path.push_back(start); // add start city to path
 
 	int min;
 
-	Matrix *best = new Matrix();
+	Matrix *best = new Matrix(); // matrix for best current solution
 
 	for (int i = 0; reducedProblem->path.size() < problem->size; i++) {
 
@@ -128,18 +137,17 @@ int TSP::BranchAndBound()
 		start = nextStart;
 
 		for (int i = 0; i < problem->size; i++) {
+			// find next city to visit
 			if (!isVisited(reducedProblem->path, i)) {
+				// estimate lowerBound of every matrix
 				Matrix *matrix = new Matrix(reducedProblem);
 				matrix->id = id++;
-				//cout << "\n BEFORE REDUCE MATRIX " << endl;
-				//cout << "\n LOWER BOUND " << lowerBound << endl;
-				//cout << "\n START " << start << endl;
 				matrix->reduceMatrix(start, i, lowerBound);
-				//cout << "To City " << i << " : " << matrix->bound << endl;
-				//matrix->show();
+				// if better than upperBound save in memory
 				if (matrix->bound < upperBound) {
 					oldResults.push_back(matrix);
 				}
+				// check if current min lowerbound
 				if (matrix->bound < min) {
 					min = matrix->bound;
 					best = matrix;
@@ -148,41 +156,22 @@ int TSP::BranchAndBound()
 			}
 		}
 
+		// remove best from memory
 		remove(oldResults, best->id);
-
-		//cout << "\nMEMORY\n" << endl;
-
-		//for (int i = 0; i < oldResults.size(); i++) {
-		//	oldResults[i]->show();
-		//	cout << "Path : ";
-		//	oldResults[i]->showPath();
-		//	cout << "ID : " << oldResults[i]->id << endl;
-		//	cout << "Bound : " << oldResults[i]->bound << endl;
-		//}
-
-		//cout << "\nBEST\n" << endl;
-		////best->show();
-		//cout << "Path : ";
-		//best->showPath();
-		//cout << "ID : " << best->id << endl;
-		//cout << "Bound : " << best->bound << endl;
 
 		lowerBound = best->bound;
 
+		// search (check memory) for better solution than current best 
 		reducedProblem = findBetter(oldResults, best, reducedProblem, nextStart);
 
 		lowerBound = reducedProblem->bound;
 
-		//reducedProblem = best;
-
-		//cout << "\n LOWER BOUND " << lowerBound << endl;
-		//cout << "--------------------------------------------------------------------------------------------------\n";
-		//reducedProblem->showPath();
-
 	}
 
+	// solution path
 	bestPath = reducedProblem->path;
 
+	// clear vector
 	oldResults.clear();
 	oldResults.shrink_to_fit();
 
@@ -222,10 +211,10 @@ int TSP::bruteForceSTL()
 
 	// check every possible solution
 	// order changes in every loop (next_permutation)
-	// size! times
+	// (size-1)! times
 	do {
 
-		// ------------ PATH LENGTH ------------
+#pragma region PathLength
 
 		length = 0;
 
@@ -244,7 +233,7 @@ int TSP::bruteForceSTL()
 
 		}
 
-		// ------------ PATH LENGTH ------------
+#pragma endregion
 
 	} while (std::next_permutation(order + 1, order + problem->size));
 
@@ -325,16 +314,14 @@ void TSP::myPermutationTree(int start, vector<int> order, int &min) {
 
 	if (order.size() == problem->size) {
 
-		// ------------ PATH LENGTH ------------
+#pragma region PathLength
 
 		int length = 0;
 
 		for (int j = 0; j < problem->size - 1; j++) {
 			length += problem->matrix[order[j]][order[j + 1]];
 		}
-
 		length += problem->matrix[order[problem->size - 1]][order[0]];
-
 		if (length < min) {
 			bestPath.clear();
 			for (int i = 0; i < problem->size; i++) {
@@ -343,7 +330,7 @@ void TSP::myPermutationTree(int start, vector<int> order, int &min) {
 			min = length;
 		}
 
-		// ------------ PATH LENGTH ------------
+#pragma endregion
 
 		return;
 	}
@@ -366,7 +353,7 @@ void TSP::myPermutationTreeFaster(int start, std::vector<int> order, std::vector
 
 	if (next.size() == 0) {
 
-		// ------------ PATH LENGTH ------------
+#pragma region PathLength
 
 		int length = 0;
 
@@ -384,7 +371,7 @@ void TSP::myPermutationTreeFaster(int start, std::vector<int> order, std::vector
 			min = length;
 		}
 
-		// ------------ PATH LENGTH ------------
+#pragma endregion
 
 		return;
 	}
@@ -399,7 +386,7 @@ void TSP::myPermutationSwap(vector<int> order, int left, int right, int &min) {
 
 	if (left == right) {
 
-		// ------------ PATH LENGTH ------------
+#pragma region  PathLength
 
 		int length = 0;
 
@@ -417,7 +404,7 @@ void TSP::myPermutationSwap(vector<int> order, int left, int right, int &min) {
 			min = length;
 		}
 
-		// ------------ PATH LENGTH ------------
+#pragma endregion
 
 		return;
 	}
@@ -472,25 +459,17 @@ Matrix* TSP::findBetter(std::vector<Matrix*> &list, Matrix *best, Matrix *reduce
 	reduced = best;
 	
 	int min = best->bound;
-	//cout << list.size() << endl;
+
 	for (Matrix* elem : list) {
-		//cout << "Elem: " << elem->bound << endl;
-		//cout << "Min : " <<  min << endl;
-		//elem->showPath();
+
 		if (elem->bound < min) {
+
 			min = elem->bound;
 			int id = elem->id;
 			list.push_back(reduced);
 			reduced = elem;
 			remove(list, id);
-			//cout << "-------------------------------------------------------------------------------------------------" << endl;
-			//cout << "FOUND" << endl;
-			//reduced->show();
-			//reduced->showPath();
-			//cout << "Bound Memory: " << reduced->bound << endl;
-			//cout << "New Start City : " << reduced->getLastCity();
 			nextStart = reduced->getLastCity();
-			//cout << "-------------------------------------------------------------------------------------------------" << endl;
 
 		}
 

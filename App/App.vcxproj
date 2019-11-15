@@ -174,22 +174,12 @@
     <Text Include="data10.txt" />
     <Text Include="data11.txt" />
     <Text Include="data12.txt" />
-    <Text Include="data120.txt" />
     <Text Include="data13.txt" />
     <Text Include="data14.txt" />
     <Text Include="data15.txt" />
     <Text Include="data16.txt" />
-    <Text Include="data17.txt" />
     <Text Include="data18.txt" />
-    <Text Include="data21.txt" />
-    <Text Include="data24.txt" />
-    <Text Include="data26.txt" />
-    <Text Include="data29.txt" />
-    <Text Include="data4.txt" />
-    <Text Include="data42.txt" />
-    <Text Include="data443.txt" />
     <Text Include="data5.txt" />
-    <Text Include="data58.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

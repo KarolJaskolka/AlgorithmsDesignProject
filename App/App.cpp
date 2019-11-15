@@ -11,25 +11,27 @@ using namespace std;
 
 int main()
 {
-	string files[] = { "data10.txt", "data11.txt", "data12.txt", "data13.txt",
+	string files[] = { "data5.txt", "data10.txt", "data11.txt", "data12.txt", "data13.txt",
 						"data14.txt", "data15.txt", "data16.txt", "data18.txt" };
 
 	Timer *timer = new Timer();
 
 	int bestPath;
 
-	for (int i = 0; i < 8; i++) {
+	int problems = 3; // number of problems from files[] to solve
+
+	for (int i = 0; i < problems; i++) {
 
 		TSP *tsp = new TSP(files[i]);
 		
-		//timer->start();
-		//bestPath = tsp->nearestNeighbour(0);
-		//timer->stop();
-		//cout << "--------------------------------------------------------------------------------------------------\n";
-		//cout << "Time : " << timer->result() << " ms | ";
-		//cout << "Nearest Neighbour [0] : " << bestPath << endl;
-		//tsp->showTempPath();
-
+		timer->start();
+		bestPath = tsp->nearestNeighbour(0);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Nearest Neighbour [0] : " << bestPath << endl;
+		tsp->showTempPath();
+		
 		timer->start();
 		bestPath = tsp->kNearestNeighbour();
 		timer->stop();
@@ -39,14 +41,20 @@ int main()
 		tsp->showBestPath();
 
 		timer->start();
-		bestPath = tsp->BranchAndBound();
+		bestPath = tsp->BranchAndBound(false);
 		timer->stop();
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Branch And Bound : " << bestPath << endl;
+		cout << "Branch And Bound (NN) : " << bestPath << endl;
 		tsp->showBestPath();
-
-		/*
+		
+		timer->start();
+		bestPath = tsp->BranchAndBound(true);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Branch And Bound (kNN) : " << bestPath << endl;
+		tsp->showBestPath();
 
 		timer->start();
 		bestPath = tsp->bruteForceSTL();
@@ -55,7 +63,7 @@ int main()
 		cout << "Time : " << timer->result() << " ms | ";
 		cout << "Brute Force (STL) : " << bestPath << endl;
 		tsp->showBestPath();
-		
+
 		timer->start();
 		bestPath = tsp->bruteForceSwap();
 		timer->stop();
@@ -79,23 +87,12 @@ int main()
 		cout << "Time : " << timer->result() << " ms | ";
 		cout << "Brute Force (Tree): " << bestPath << endl;
 		tsp->showBestPath();
-		
-		timer->start();
-		bestPath = tsp->BranchAndBoundPenalty(); // does not work properly
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Branch And Bound Penalty : " << bestPath << endl;
-		tsp->showPointPath();
-		
-		*/
 
 		cout << "--------------------------------------------------------------------------------------------------\n";
 
 		delete tsp;
 		
 	}
-
 
 	return 0;
 }

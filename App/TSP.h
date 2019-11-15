@@ -37,7 +37,7 @@ public:
 
 	int nearestNeighbour(int start);
 	int kNearestNeighbour();
-	int BranchAndBound();
+	int BranchAndBound(bool kNN);
 	int BranchAndBoundPenalty(); // does not work properly
 	int bruteForceSTL();
 	int bruteForceTree();
