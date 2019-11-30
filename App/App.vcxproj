@@ -152,14 +152,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Matrix.h" />
+    <ClInclude Include="PathStep.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Point.h" />
+    <ClInclude Include="TabuList.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="TSP.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="Matrix.cpp" />
+    <ClCompile Include="PathStep.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -167,19 +170,44 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Point.cpp" />
+    <ClCompile Include="TabuList.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="TSP.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="data10.txt" />
+    <Text Include="data100.txt" />
     <Text Include="data11.txt" />
     <Text Include="data12.txt" />
+    <Text Include="data120.txt" />
     <Text Include="data13.txt" />
     <Text Include="data14.txt" />
     <Text Include="data15.txt" />
     <Text Include="data16.txt" />
+    <Text Include="data171.txt" />
     <Text Include="data18.txt" />
+    <Text Include="data21.txt" />
+    <Text Include="data24.txt" />
+    <Text Include="data26.txt" />
+    <Text Include="data29.txt" />
+    <Text Include="data323.txt" />
+    <Text Include="data34.txt" />
+    <Text Include="data358.txt" />
+    <Text Include="data36.txt" />
+    <Text Include="data39.txt" />
+    <Text Include="data403.txt" />
+    <Text Include="data42.txt" />
+    <Text Include="data43.txt" />
+    <Text Include="data443.txt" />
+    <Text Include="data45.txt" />
+    <Text Include="data48.txt" />
     <Text Include="data5.txt" />
+    <Text Include="data53.txt" />
+    <Text Include="data56.txt" />
+    <Text Include="data58.txt" />
+    <Text Include="data65.txt" />
+    <Text Include="data70.txt" />
+    <Text Include="data71.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

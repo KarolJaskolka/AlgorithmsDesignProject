@@ -30,6 +30,12 @@
     <ClInclude Include="TSP.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TabuList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PathStep.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -50,6 +56,12 @@
     <ClCompile Include="TSP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TabuList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PathStep.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="data10.txt" />
@@ -61,5 +73,29 @@
     <Text Include="data16.txt" />
     <Text Include="data18.txt" />
     <Text Include="data5.txt" />
+    <Text Include="data21.txt" />
+    <Text Include="data24.txt" />
+    <Text Include="data26.txt" />
+    <Text Include="data29.txt" />
+    <Text Include="data42.txt" />
+    <Text Include="data58.txt" />
+    <Text Include="data120.txt" />
+    <Text Include="data34.txt" />
+    <Text Include="data36.txt" />
+    <Text Include="data39.txt" />
+    <Text Include="data43.txt" />
+    <Text Include="data45.txt" />
+    <Text Include="data48.txt" />
+    <Text Include="data53.txt" />
+    <Text Include="data56.txt" />
+    <Text Include="data65.txt" />
+    <Text Include="data70.txt" />
+    <Text Include="data71.txt" />
+    <Text Include="data100.txt" />
+    <Text Include="data171.txt" />
+    <Text Include="data323.txt" />
+    <Text Include="data358.txt" />
+    <Text Include="data403.txt" />
+    <Text Include="data443.txt" />
   </ItemGroup>
 </Project>

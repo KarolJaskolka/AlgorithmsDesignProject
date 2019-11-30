@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "TSP.h"
 #include "Matrix.h"
+#include "TabuList.h"
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -275,6 +276,154 @@ int TSP::bruteForceSwap()
 	return min;
 }
 
+// Local Search Algorithm Implementation
+int TSP::LocalSearch(int k) {
+
+	// use k Nearest Neighbour Algorithm to set initial solution
+	// after finding solution sets field bestPath
+	kNearestNeighbour();
+
+	// initial solution x^0
+	vector<int> order = bestPath;
+
+	// solution x'
+	vector<int> orderPrime;
+	
+	int min = getSolutionLength(order);
+
+	// for k = 1,2,3... k-1
+	for (int i = 0; i < k; i++) {
+
+		// generate new solution
+		for (int i = 1; i < problem->size; i++) {
+			for (int j = 1; j < problem->size; j++) {
+				
+				if (i != j) {
+					int x = i;
+					int y = j;
+
+					orderPrime = order;
+
+					neighbourhoodSwap(orderPrime, x, y);
+
+					int length = getSolutionLength(orderPrime);
+
+					// if solution x' better than current one
+
+					if (length < min) {
+						min = length;
+						order = orderPrime;
+					}
+				}
+			}
+		}
+	}
+
+	bestPath = order;
+
+	return min;
+}
+
+// Tabu Search Algorithm Implementation
+int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random) {
+
+	TabuList *tabuList = new TabuList(tabuSize, cadence);
+
+	// initial solution x^0
+	vector<int> order;
+
+	if (!random) {
+		// use k Nearest Neighbour Algorithm to set initial solution
+		// after finding solution sets field bestPath
+		kNearestNeighbour();
+		order = bestPath;
+	}
+	else {
+		order = generateOrderVector();
+	}
+
+	// solution x'
+	vector<int> orderPrime;
+
+	int min = getSolutionLength(order);
+
+	int changes = 0;
+	int streak = 0;
+
+	bestPath = order;
+
+	// for k = 1,2,3... k-1
+	for (int k = 0; k < iterations; k++) {
+
+		// generate new solution
+		for (int i = 1; i < problem->size; i++) {
+			for (int j = 1; j < problem->size; j++) {
+
+				if (i != j) {
+					
+					int x = i;
+					int y = j;
+
+					orderPrime = order;
+
+					// swap or insert neighbourhood
+					if (SwapN) {
+						neighbourhoodSwap(orderPrime, x, y);
+					}
+					else {
+						neighbourhoodInsert(orderPrime, x, y);
+					}
+
+					int length = getSolutionLength(orderPrime);
+
+					// if solution x' better than current one
+
+					if (length < min) {
+						int tabuPos = tabuList->find(x, y);
+						// apiration criterium
+						// remove from tabu list if solution is better
+						if (tabuPos != -1) {
+							tabuList->removeAtIndex(tabuPos);
+						}
+						// add to tabu list
+						// if max size inner method removeFirst()
+						else {
+							tabuList->add(x, y);
+						}
+						// new best path length
+						min = length;
+						// new solution
+						order = orderPrime;
+						bestPath = orderPrime;
+						changes++;
+					}
+				}
+			}
+		}
+		// if no changes generate random solution as a new order
+		if (diversification) {
+			if (changes == 0) {
+				streak++;
+				if (streak > cadence) {
+					order = generateOrderVector();
+					streak = 0;
+				}
+			}
+			else {
+				changes = 0;
+				streak = 0;
+			}
+		}
+		// cadence-- of each element 
+		// if cadence == 0 inner remove
+		tabuList->decreaseAll();
+	}
+
+	delete tabuList;
+
+	return min;
+}
+
 // Held Karp Algorithm Implementation
 int TSP::HeldKarp()
 {
@@ -316,12 +465,8 @@ void TSP::myPermutationTree(int start, vector<int> order, int &min) {
 
 #pragma region PathLength
 
-		int length = 0;
+		int length = getSolutionLength(order);
 
-		for (int j = 0; j < problem->size - 1; j++) {
-			length += problem->matrix[order[j]][order[j + 1]];
-		}
-		length += problem->matrix[order[problem->size - 1]][order[0]];
 		if (length < min) {
 			bestPath.clear();
 			for (int i = 0; i < problem->size; i++) {
@@ -355,13 +500,7 @@ void TSP::myPermutationTreeFaster(int start, std::vector<int> order, std::vector
 
 #pragma region PathLength
 
-		int length = 0;
-
-		for (int j = 0; j < problem->size - 1; j++) {
-			length += problem->matrix[order[j]][order[j + 1]];
-		}
-
-		length += problem->matrix[order[problem->size - 1]][order[0]];
+		int length = getSolutionLength(order);
 
 		if (length < min) {
 			bestPath.clear();
@@ -388,13 +527,7 @@ void TSP::myPermutationSwap(vector<int> order, int left, int right, int &min) {
 
 #pragma region  PathLength
 
-		int length = 0;
-
-		for (int j = 0; j < problem->size - 1; j++) {
-			length += problem->matrix[order[j]][order[j + 1]];
-		}
-
-		length += problem->matrix[order[problem->size - 1]][order[0]];
+		int length = getSolutionLength(order);
 
 		if (length < min) {
 			bestPath.clear();
@@ -475,4 +608,61 @@ Matrix* TSP::findBetter(std::vector<Matrix*> &list, Matrix *best, Matrix *reduce
 
 	}
 	return reduced;
+}
+
+// return path cost of given solution
+int TSP::getSolutionLength(std::vector<int>order) {
+	
+	int length = 0;
+
+	for (int i = 0; i < problem->size - 1; i++) {
+		length += problem->matrix[order[i]][order[i + 1]];
+	}
+
+	length += problem->matrix[order[problem->size - 1]][order[0]];
+
+	return length;
+
+}
+
+// swap two elements
+void TSP::neighbourhoodSwap(std::vector<int> &order, int x, int y) {
+	int temp = order[x];
+	order[x] = order[y];
+	order[y] = temp;
+}
+
+// insert second element before first 
+void TSP::neighbourhoodInsert(std::vector<int> &order, int x, int y) {
+
+	// y must be bigger number
+	if (x > y) {
+		int z = x;
+		x = y;
+		y = z;
+	}
+
+	int temp = order[y];
+
+	for (int i = y; i > x; i--) {
+		neighbourhoodSwap(order, i, i-1);
+	}
+
+	order[x] = temp;
+
+}
+
+std::vector<int> TSP::generateOrderVector() {
+	vector<int> cities;
+	vector<int> order;
+	for (int i = 0; i < problem->size; i++) {
+		cities.push_back(i);
+	}
+
+	for (int i = 0; i < problem->size; i++) {
+		int city = rand() % cities.size();
+		order.push_back(cities[city]);
+		cities.erase(cities.begin() + city);
+	}
+	return order;
 }

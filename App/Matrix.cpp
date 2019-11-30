@@ -44,7 +44,7 @@ Matrix::Matrix(std::string fileName)
 	file >> name;
 	file >> size;
 
-	cout << "\nFile name : " << name << ".txt, Size : " << size << "\n";
+	cout << "\nFile name : " << name << ".txt, Size : " << size;
 
 	matrix = new int*[size];
 
@@ -96,7 +96,7 @@ Matrix::~Matrix()
 void Matrix::generate(int n)
 {
 	size = n;
-	srand((unsigned int)time(0));
+	
 
 	matrix = new int*[size];
 
