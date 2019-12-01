@@ -1,10 +1,12 @@
 #pragma once
 #include "Matrix.h"
 #include "PathStep.h"
+#include "TabuElement.h"
 class TabuList
 {
 private:
-	std::vector<PathStep*> tabu;
+	//std::vector<PathStep*> tabu;
+	std::vector<TabuElement *> tabu;
 	int cadence;
 	int size;
 
@@ -13,7 +15,8 @@ public:
 	~TabuList();
 
 	void decreaseAll();
-	int find(int x, int y);
+	bool find(int x, int y);
+	bool findAndRemove(int x, int y);
 	void add(int x, int y);
 	void show();
 	void removeFirst();

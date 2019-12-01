@@ -48,7 +48,7 @@ public:
 	int bruteForceTreeFaster();
 	int bruteForceSwap();
 	int LocalSearch(int k);
-	int TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random);
+	int TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration);
 	int HeldKarp(); // not implemented yet
 	
 	// paths' display methods

@@ -17,20 +17,40 @@ TabuList::~TabuList()
 	tabu.shrink_to_fit();
 }
 
+// returns current size of tabu list
+int TabuList::getCurrentSize()
+{
+	return tabu.size();
+}
+
 // decrease cadence of each element tabu list
 void TabuList::decreaseAll()
 {
 	for (int i = 0; i < tabu.size(); i++) {
 		tabu[i]->decreaseCadence();
 		if (tabu[i]->getCadence() == 0) {
-			delete tabu[i];
-			tabu[i] = NULL;
-			tabu.erase(tabu.begin() + i);
+			removeAtIndex(i);
 			i--;
 		}
 	}
 }
 
+// remove first element from tabu list (with lowest cadence)
+void TabuList::removeFirst()
+{
+	removeAtIndex(0);
+}
+
+// remove element from list at providen index
+void TabuList::removeAtIndex(int index) {
+	delete tabu[index];
+	tabu[index] = NULL;
+	tabu.erase(tabu.begin() + index);
+}
+
+/********************************************* PATH STEP ********************************************/
+
+/*
 // return position of element (if not found return -1)
 int TabuList::find(int x, int y)
 {	
@@ -63,23 +83,54 @@ void TabuList::show()
 	}
 	cout << "-----------\n";
 }
+*/
 
-// remove first element from tabu list (with lowest cadence)
-void TabuList::removeFirst()
-{
-	removeAtIndex(0);
+/******************************************* TABU ELEMENT **********************************************/
+
+bool TabuList::findAndRemove(int x, int y) {
+	bool found = false;
+	for (int i = 0; i < tabu.size(); i++) {
+		if (tabu[i]->getCity() == x) {
+			removeAtIndex(i);
+			found = true;
+			i--;
+		}
+		else if (tabu[i]->getCity() == y) {
+			removeAtIndex(i);
+			found = true;
+			i--;
+		}
+	}
+	return found;
 }
 
-// remove element from list at providen index
-void TabuList::removeAtIndex(int index) {
-	delete tabu[index];
-	tabu[index] = NULL;
-	tabu.erase(tabu.begin() + index);
+bool TabuList::find(int x, int y) {
+	for (int i = 0; i < tabu.size(); i++) {
+		if (tabu[i]->getCity() == x || tabu[i]->getCity() == y) {
+			return true;
+		}
+	}
+	return false;
 }
 
-// returns current size of tabu list
-int TabuList::getCurrentSize()
-{
-	return tabu.size();
+void TabuList::add(int x, int y) {
+	if (tabu.size() == size) {
+		removeFirst();
+	}
+	
+	tabu.push_back(new TabuElement(x, cadence));
+	
+	if (tabu.size() == size) {
+		removeFirst();
+	}
+
+	tabu.push_back(new TabuElement(y, cadence));
 }
 
+void TabuList::show() {
+	cout << "TABU LIST: \n";
+	for (TabuElement* element : tabu) {
+		element->show();
+	}
+	cout << "-----------\n";
+}

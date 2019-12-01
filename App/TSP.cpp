@@ -324,10 +324,10 @@ int TSP::LocalSearch(int k) {
 	return min;
 }
 
-// Tabu Search Algorithm Implementation
-int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random) {
-
-	TabuList *tabuList = new TabuList(tabuSize, cadence);
+// Tabu Search Algorithm Implementation (number of iterations, size of tabuList, cadence length of every city on tabuList,
+// neighbourhood true-Swap, false-Insert, restart after no changes during few iterations, 
+// random initial solution or using k Nearest Neighbour, aspiration criterium enabled/diabled)
+int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration) {
 
 	// initial solution x^0
 	vector<int> order;
@@ -352,6 +352,8 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 
 	bestPath = order;
 
+	TabuList *tabuList = new TabuList(tabuSize, cadence);
+
 	// for k = 1,2,3... k-1
 	for (int k = 0; k < iterations; k++) {
 
@@ -361,6 +363,12 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 
 				if (i != j) {
 					
+					if (!aspiration) {
+						if (tabuList->find(i, j)) {
+							continue;
+						}
+					}
+
 					int x = i;
 					int y = j;
 
@@ -379,11 +387,11 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 					// if solution x' better than current one
 
 					if (length < min) {
-						int tabuPos = tabuList->find(x, y);
+						
 						// apiration criterium
 						// remove from tabu list if solution is better
-						if (tabuPos != -1) {
-							tabuList->removeAtIndex(tabuPos);
+						if (tabuList->findAndRemove(x, y)) {
+							//cout << "ASPIRATION USED" << " ";
 						}
 						// add to tabu list
 						// if max size inner method removeFirst()
@@ -400,7 +408,13 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 				}
 			}
 		}
-		// if no changes generate random solution as a new order
+
+		// cadence-- of each element 
+		// if cadence == 0 inner remove
+		tabuList->decreaseAll();
+
+		// if diversification enabled and no changes
+		// then generate random solution as a new order
 		if (diversification) {
 			if (changes == 0) {
 				streak++;
@@ -414,9 +428,19 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 				streak = 0;
 			}
 		}
-		// cadence-- of each element 
-		// if cadence == 0 inner remove
-		tabuList->decreaseAll();
+		else {
+			if (changes == 0) {
+				streak++;
+				if (streak > cadence) {
+					break;
+				}
+			}
+			else {
+				changes = 0;
+				streak = 0;
+			}
+		}
+
 	}
 
 	delete tabuList;
@@ -652,6 +676,7 @@ void TSP::neighbourhoodInsert(std::vector<int> &order, int x, int y) {
 
 }
 
+// return random generated order (std::vector)
 std::vector<int> TSP::generateOrderVector() {
 	vector<int> cities;
 	vector<int> order;
