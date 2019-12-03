@@ -5,8 +5,8 @@
 class TabuList
 {
 private:
-	//std::vector<PathStep*> tabu;
-	std::vector<TabuElement *> tabu;
+	std::vector<PathStep*> tabu;
+	//std::vector<TabuElement *> tabu;
 	int cadence;
 	int size;
 
@@ -22,5 +22,6 @@ public:
 	void removeFirst();
 	void removeAtIndex(int index);
 	int getCurrentSize();
+	void clear();
 };
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Matrix.h"
+#include "TabuList.h"
 
 class TSP
 {
@@ -19,6 +20,8 @@ private:
 	void myPermutationSwap(std::vector<int> order, int left, int right, int &min);
 	int *generateOrder(int n);
 	
+	bool equals(std::vector<int> order, std::vector<int> initOrder);
+	int localMinimum(std::vector<int> &order, bool swapN, TabuList *tabuList, bool aspiration);
 	bool isVisited(std::vector<int> visited, int city);
 	void remove(std::vector<Matrix*> &list, int id);
 	int getSolutionLength(std::vector<int>order);
@@ -48,6 +51,7 @@ public:
 	int bruteForceTreeFaster();
 	int bruteForceSwap();
 	int LocalSearch(int k);
+	int TabuSearchHybrid(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration);
 	int TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration);
 	int HeldKarp(); // not implemented yet
 	

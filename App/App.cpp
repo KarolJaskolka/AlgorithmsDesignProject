@@ -10,11 +10,15 @@
 
 using namespace std;
 
+double error(int best, int found) {
+	return ((double)(found - best) / (double)best) * 100;
+}
+
 int main()
 {
 	srand((unsigned int)time(0));
 
-	string files[] = { "data10.txt", "data11.txt", "data12.txt", "data13.txt",
+	string files[] = { "data10.txt", "data11.txt", "data12.txt", "data13.txt", 
 						"data14.txt", "data15.txt", "data16.txt", "data18.txt",
 						"data21.txt", "data24.txt", "data26.txt", "data29.txt",
 						"data34.txt", "data36.txt", "data39.txt", "data42.txt",
@@ -34,16 +38,7 @@ int main()
 
 	int problems = 32; // number of problems from files[] to solve
 
-	int tabuSize;
-	int cadence;
-	int iterations = 1000;
-
-	bool swap = false;
-	bool diversification = false;
-	bool aspiration = false;
-	bool random = false;
-	
-	for (int i = 31; i < 32; i++) {
+	for (int i = 0; i < 10; i++) {
 
 		TSP *tsp = new TSP(files[i]);
 		cout << " Best: " << best[i] << endl;
@@ -52,34 +47,34 @@ int main()
 		bestPath = tsp->kNearestNeighbour();
 		timer->stop();
 		cout << "Time : " << timer->result() << " ms | ";
-		cout << "K Nearest Neighbour : " << bestPath << endl;
-		cout << endl;
+		cout << "K Nearest Neighbour : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
 
+		
 		for (int j = 0; j < 2; j++) {
 			for (int k = 0; k < 2; k++) {
 				for (int l = 0; l < 2; l++) {
-					for (int m = 0; m < 2; m++) {
-						for (int n = 0; n < 2; n++) {
+					
+					int iterations = 1000;
+					bool swap, diversification = false, aspiration = false, random = false;
+					int tabuSize[] = { 2, 3, 4, 5, 6, 7, 8, 10, 14, 18, 20 };
 
-							if (j % 2 == 0) { tabuSize = 5; cadence = 3; } else { tabuSize = 10; cadence = 5; }
-							if (k % 2 == 0) { random = true; } else { random = false; }
-							if (l % 2 == 0) { swap = true; } else { swap = false; }
-							if (m % 2 == 0) { diversification = true; } else { diversification = false; }
-							if (n % 2 == 0) { aspiration = true; } else { aspiration = false; }
-								
-							timer->start();
-							bestPath = tsp->TabuSearch(iterations, tabuSize, cadence, swap, diversification, random, aspiration);
-							timer->stop();
-							cout << "Time : " << timer->result() << " ms | ";
-							cout << "TS :" << " Iter " << iterations << " TSize " << tabuSize << " Cad " << cadence
-									<< " Swap " << swap << " Div " << diversification << " Rand " << random << " Asp " << aspiration <<
-									" Best " << bestPath << endl;
-						}
+					if (j % 2 == 0) { swap = true; } else { swap = false; }
+					if (k % 2 == 0) { aspiration = false; } else { aspiration = true; }
+					if (l % 2 == 0) { diversification = false; }else { diversification = true; }
+
+					for (int t = 0; t < 11; t++) {
+						timer->start();
+						bestPath = tsp->TabuSearch(iterations, tabuSize[t], tabuSize[t]+1, swap, diversification, random, aspiration);
+						timer->stop();
+						cout << "Time : " << timer->result() << " ms | ";
+						cout << "TS :" << " Iter " << iterations << " TSize " << tabuSize[t] << " Cad " << tabuSize[t]
+							<< " Swap " << swap << " Div " << diversification << " Rand " << random << " Asp " << aspiration <<
+							" Best " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
 					}
 				}
 			}
 		}
-
+		
 		/*
 
 		timer->start();
@@ -129,10 +124,9 @@ int main()
 		cout << "Time : " << timer->result() << " ms | ";
 		cout << "Brute Force (Tree): " << bestPath << endl;
 		tsp->showBestPath();
-
+		*/
 		cout << "--------------------------------------------------------------------------------------------------\n";
 
-		*/
 
 		delete tsp;
 		

@@ -50,19 +50,46 @@ void TabuList::removeAtIndex(int index) {
 
 /********************************************* PATH STEP ********************************************/
 
-/*
-// return position of element (if not found return -1)
-int TabuList::find(int x, int y)
+
+// found - true, not found - false
+bool TabuList::find(int x, int y)
 {	
 	for (int i = 0; i < tabu.size(); i++) {
 		if (tabu[i]->getX() == x && tabu[i]->getY() == y) {
-			return i;
+			return true;
 		}
 		else if (tabu[i]->getY() == x && tabu[i]->getX() == y) {
-			return i;
+			return true;
 		}
 	}
-	return -1;
+	return false;
+}
+
+bool TabuList::findAndRemove(int x, int y) {
+	bool found = false;
+	for (int i = 0; i < tabu.size(); i++) {
+		if (tabu[i]->getX() == x) {
+			removeAtIndex(i);
+			found = true;
+			i--;
+		}
+		else if (tabu[i]->getY() == y) {
+			removeAtIndex(i);
+			found = true;
+			i--;
+		}
+		else if (tabu[i]->getY() == x) {
+			removeAtIndex(i);
+			found = true;
+			i--;
+		}
+		else if (tabu[i]->getX() == y) {
+			removeAtIndex(i);
+			found = true;
+			i--;
+		}
+	}
+	return found;
 }
 
 // add new step to tabu list (remove first element if max size reached)
@@ -77,16 +104,16 @@ void TabuList::add(int x, int y)
 // display tabu list
 void TabuList::show()
 {
+	cout << "-------------------------------------------------\n";
 	cout << "TABU LIST: \n";
 	for (PathStep* step : tabu) {
 		step->show();
 	}
-	cout << "-----------\n";
+	cout << "-------------------------------------------------\n";
 }
-*/
 
 /******************************************* TABU ELEMENT **********************************************/
-
+/*
 bool TabuList::findAndRemove(int x, int y) {
 	bool found = false;
 	for (int i = 0; i < tabu.size(); i++) {
@@ -128,9 +155,17 @@ void TabuList::add(int x, int y) {
 }
 
 void TabuList::show() {
+	cout << "-------------------------------------------------\n";
 	cout << "TABU LIST: \n";
 	for (TabuElement* element : tabu) {
 		element->show();
 	}
-	cout << "-----------\n";
+	cout << "-------------------------------------------------\n";
+}
+
+*/
+
+
+void TabuList::clear() {
+	tabu.clear();
 }

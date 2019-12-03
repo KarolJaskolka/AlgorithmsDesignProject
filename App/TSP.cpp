@@ -324,10 +324,8 @@ int TSP::LocalSearch(int k) {
 	return min;
 }
 
-// Tabu Search Algorithm Implementation (number of iterations, size of tabuList, cadence length of every city on tabuList,
-// neighbourhood true-Swap, false-Insert, restart after no changes during few iterations, 
-// random initial solution or using k Nearest Neighbour, aspiration criterium enabled/diabled)
-int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration) {
+// Tabu Search MyHybrid (I misunderstood idea of Tabu Search Algorithm and created something similar)
+int TSP::TabuSearchHybrid(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration) {
 
 	// initial solution x^0
 	vector<int> order;
@@ -364,7 +362,7 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 				if (i != j) {
 					
 					if (!aspiration) {
-						if (tabuList->find(i, j)) {
+						if (tabuList->find(order[i], order[j])) {
 							continue;
 						}
 					}
@@ -390,13 +388,13 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 						
 						// apiration criterium
 						// remove from tabu list if solution is better
-						if (tabuList->findAndRemove(x, y)) {
+						if (tabuList->findAndRemove(orderPrime[x], orderPrime[y])) {
 							//cout << "ASPIRATION USED" << " ";
 						}
 						// add to tabu list
 						// if max size inner method removeFirst()
 						else {
-							tabuList->add(x, y);
+							tabuList->add(orderPrime[x], orderPrime[y]);
 						}
 						// new best path length
 						min = length;
@@ -446,6 +444,111 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 	delete tabuList;
 
 	return min;
+}
+
+// Tabu Search Algorithm Implementation (number of iterations, size of tabuList, cadence length of every city on tabuList,
+// neighbourhood true-Swap, false-Insert, restart after no changes during few iterations, 
+// random initial solution or using k Nearest Neighbour, aspiration criterium enabled/diabled)
+int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration) {
+
+	// initial solution x^0
+	vector<int> order;
+
+	if (!random) {
+		// use k Nearest Neighbour Algorithm to set initial solution
+		// after finding solution sets field bestPath
+		kNearestNeighbour();
+		order = bestPath;
+	}
+	else {
+		order = generateOrderVector();
+	}
+
+	// copy of init order
+	vector<int> initOrder = order;
+
+	int globalMin = getSolutionLength(order);
+
+	int streak = 0; // better solution not found 
+
+	bestPath = order;
+
+	TabuList *tabuList = new TabuList(tabuSize, cadence);
+
+	//cout << "START ORDER" << endl;
+	//for (int i = 0; i < order.size(); i++) {
+	//	cout << order[i] << "->";
+	//}
+	//cout << endl;
+	//cout << "-------------------------------------------------\n";
+
+	// for k = 1,2,3... k-1
+	for (int k = 0; k < iterations; k++) {
+
+		int localMin = localMinimum(order, SwapN, tabuList, aspiration);
+
+		if (localMin < globalMin) {
+			globalMin = localMin;
+			bestPath = order;
+			streak = 0;
+		}
+		else {
+			streak++;
+		}
+		//cout << "-------------------------------------------------\n";
+		//cout << "ORDER" << endl;
+		//for (int i = 0; i < order.size(); i++) {
+		//	cout << order[i] << "->";
+		//}
+		//cout << endl;
+		//tabuList->show();
+
+		//cout << "localmin : "  <<  localMin << " globalmin : " << globalMin << " streak : " << streak << endl;
+
+		// cadence-- of each element 
+		// if cadence == 0 inner remove
+		//cout << "DECREASE" << endl;
+		tabuList->decreaseAll();
+
+		// if diversification enabled and back to start
+		// then generate random solution as a new order
+
+		// back to init order
+		if (equals(order, initOrder)) {
+			//cout << "back to start" << endl;
+			if (diversification) {
+				order = generateOrderVector();
+				tabuList->clear();
+			}
+			else {
+				break;
+			}
+		}
+		// found again the same best solution
+		if (streak > 0 && equals(order, bestPath)) {
+			//cout << "stucked in loop" << endl;
+			if (diversification) {
+				order = generateOrderVector();
+				tabuList->clear();
+			}
+			else {
+				break;
+			}
+		}
+		// no progress
+		if (streak > 100 && streak > problem->size) {
+			//cout << "cannot find better solution after too many iterations" << endl;
+			if (diversification) {
+				order = generateOrderVector();
+				tabuList->clear();
+			}
+		}
+
+	}
+
+	delete tabuList;
+
+	return globalMin;
 }
 
 // Held Karp Algorithm Implementation
@@ -690,4 +793,82 @@ std::vector<int> TSP::generateOrderVector() {
 		cities.erase(cities.begin() + city);
 	}
 	return order;
+}
+
+// return local minimum found in neighbourhood (TabuSearch Algorithm)
+int TSP::localMinimum(std::vector<int> &order, bool SwapN, TabuList *tabuList, bool aspiration) {
+
+	int min = 2147483647;
+	
+	std::vector<int> bestLocalOrder;
+
+	int elementOne;
+	int elementTwo;
+
+	bool aspirationUsed = false;
+
+	// generating all solutions in neighbourhood
+	for (int i = 1; i < problem->size; i++) {
+		for (int j = 1; j < problem->size; j++) {
+
+			if (i != j) {
+
+				std::vector<int> copyOrder = order;
+
+				if (SwapN) {
+					neighbourhoodSwap(copyOrder, i, j);
+				}
+				else {
+					neighbourhoodInsert(copyOrder, i, j);
+				}
+
+				int length = getSolutionLength(copyOrder);
+
+				if (aspiration) {
+					if (length < min) {
+						
+						if (tabuList->find(copyOrder[i], copyOrder[j])) {
+							//cout << "aspiration" << endl;
+							tabuList->findAndRemove(copyOrder[i], copyOrder[j]);
+							aspirationUsed = true;
+						} 
+						
+						min = length;
+						bestLocalOrder = copyOrder;
+						elementOne = copyOrder[i];
+						elementTwo = copyOrder[j];
+					}
+				}
+				else if(!tabuList->find(copyOrder[i], copyOrder[j])) {
+					if (length < min) {
+						min = length;
+						bestLocalOrder = copyOrder;
+						elementOne = copyOrder[i];
+						elementTwo = copyOrder[j];
+					}
+				}
+				else {
+					//cout << "Move on TabuList!!!" << copyOrder[i] << " " << copyOrder[j] << endl;
+				}
+			}
+		}
+	}
+
+	order = bestLocalOrder;
+	
+	if (!aspirationUsed) {
+
+		tabuList->add(elementOne, elementTwo);
+	}
+	
+	return min;
+}
+
+bool TSP::equals(std::vector<int> order, std::vector<int> initOrder) {
+	for (int i = 0; i < order.size(); i++) {
+		if (order[i] != initOrder[i]) {
+			return false;
+		}
+	}
+	return true;
 }
