@@ -38,9 +38,10 @@ int main()
 
 	int problems = 32; // number of problems from files[] to solve
 
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 8; i++) {
 
 		TSP *tsp = new TSP(files[i]);
+
 		cout << " Best: " << best[i] << endl;
 
 		timer->start();

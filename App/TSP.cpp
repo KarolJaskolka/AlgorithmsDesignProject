@@ -289,39 +289,21 @@ int TSP::LocalSearch(int k) {
 	// solution x'
 	vector<int> orderPrime;
 	
-	int min = getSolutionLength(order);
+	int globalMin = getSolutionLength(order);
 
 	// for k = 1,2,3... k-1
 	for (int i = 0; i < k; i++) {
 
-		// generate new solution
-		for (int i = 1; i < problem->size; i++) {
-			for (int j = 1; j < problem->size; j++) {
-				
-				if (i != j) {
-					int x = i;
-					int y = j;
+		int localMin = localMinimum(order);
 
-					orderPrime = order;
-
-					neighbourhoodSwap(orderPrime, x, y);
-
-					int length = getSolutionLength(orderPrime);
-
-					// if solution x' better than current one
-
-					if (length < min) {
-						min = length;
-						order = orderPrime;
-					}
-				}
-			}
+		if (localMin < globalMin) {
+			globalMin = localMin;
+			bestPath = order;
 		}
+
 	}
 
-	bestPath = order;
-
-	return min;
+	return globalMin;
 }
 
 // Tabu Search MyHybrid (I misunderstood idea of Tabu Search Algorithm and created something similar)
@@ -495,6 +477,7 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 		else {
 			streak++;
 		}
+
 		//cout << "-------------------------------------------------\n";
 		//cout << "ORDER" << endl;
 		//for (int i = 0; i < order.size(); i++) {
@@ -507,7 +490,6 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 
 		// cadence-- of each element 
 		// if cadence == 0 inner remove
-		//cout << "DECREASE" << endl;
 		tabuList->decreaseAll();
 
 		// if diversification enabled and back to start
@@ -828,7 +810,6 @@ int TSP::localMinimum(std::vector<int> &order, bool SwapN, TabuList *tabuList, b
 					if (length < min) {
 						
 						if (tabuList->find(copyOrder[i], copyOrder[j])) {
-							//cout << "aspiration" << endl;
 							tabuList->findAndRemove(copyOrder[i], copyOrder[j]);
 							aspirationUsed = true;
 						} 
@@ -857,13 +838,46 @@ int TSP::localMinimum(std::vector<int> &order, bool SwapN, TabuList *tabuList, b
 	order = bestLocalOrder;
 	
 	if (!aspirationUsed) {
-
 		tabuList->add(elementOne, elementTwo);
 	}
 	
 	return min;
 }
 
+// return local minimum found in neighbourhood (LocalSearch Algorithm)
+int TSP::localMinimum(std::vector<int> &order) {
+	
+	int min = 2147483647;
+
+	std::vector<int> bestLocalOrder;
+
+	// generating all solutions in neighbourhood
+	for (int i = 1; i < problem->size; i++) {
+		for (int j = 1; j < problem->size; j++) {
+
+			if (i != j) {
+
+				std::vector<int> copyOrder = order;
+
+				neighbourhoodSwap(copyOrder, i, j);
+
+				int length = getSolutionLength(copyOrder);
+
+				if (length < min) {
+					min = length;
+					bestLocalOrder = copyOrder;
+				}
+
+			}
+		}
+	}
+
+	order = bestLocalOrder;
+
+	return min;
+}
+
+// compare two orders if equal return true
 bool TSP::equals(std::vector<int> order, std::vector<int> initOrder) {
 	for (int i = 0; i < order.size(); i++) {
 		if (order[i] != initOrder[i]) {
