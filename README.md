@@ -1,9 +1,16 @@
-# Travelling Salesman Problem (Project Part 1)
+# Travelling Salesman Problem
 
-## Project Target
-
-Find optimal solution for TSP using :
+##Part 1 :
 
 - Brute Force
-- Branch and Bound Algorithm (I've chosen K Nearest Neighbour Algorithm to estimate upper bound)
-- Held-Karp Algorithm // not implemented yet
+- Branch and Bound Algorithm 
+- K Nearest Neighbour Algorithm (to estimate BxB upper bound)
+
+##Part 2 :
+
+- Local Search
+- Tabu Search
+
+##Part 3 :
+
+- Genetic Algorithm

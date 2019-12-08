@@ -179,7 +179,7 @@ int TSP::BranchAndBound(bool kNN)
 	return lowerBound;
 }
 
-// Branch And Bound (penalty) Algorithm Implementation
+// Branch And Bound (penalty) Algorithm Implementation !does not work properly!
 int TSP::BranchAndBoundPenalty()
 {
 	int length = 0;
@@ -306,128 +306,6 @@ int TSP::LocalSearch(int k) {
 	return globalMin;
 }
 
-// Tabu Search MyHybrid (I misunderstood idea of Tabu Search Algorithm and created something similar)
-int TSP::TabuSearchHybrid(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration) {
-
-	// initial solution x^0
-	vector<int> order;
-
-	if (!random) {
-		// use k Nearest Neighbour Algorithm to set initial solution
-		// after finding solution sets field bestPath
-		kNearestNeighbour();
-		order = bestPath;
-	}
-	else {
-		order = generateOrderVector();
-	}
-
-	// solution x'
-	vector<int> orderPrime;
-
-	int min = getSolutionLength(order);
-
-	int changes = 0;
-	int streak = 0;
-
-	bestPath = order;
-
-	TabuList *tabuList = new TabuList(tabuSize, cadence);
-
-	// for k = 1,2,3... k-1
-	for (int k = 0; k < iterations; k++) {
-
-		// generate new solution
-		for (int i = 1; i < problem->size; i++) {
-			for (int j = 1; j < problem->size; j++) {
-
-				if (i != j) {
-					
-					if (!aspiration) {
-						if (tabuList->find(order[i], order[j])) {
-							continue;
-						}
-					}
-
-					int x = i;
-					int y = j;
-
-					orderPrime = order;
-
-					// swap or insert neighbourhood
-					if (SwapN) {
-						neighbourhoodSwap(orderPrime, x, y);
-					}
-					else {
-						neighbourhoodInsert(orderPrime, x, y);
-					}
-
-					int length = getSolutionLength(orderPrime);
-
-					// if solution x' better than current one
-
-					if (length < min) {
-						
-						// apiration criterium
-						// remove from tabu list if solution is better
-						if (tabuList->findAndRemove(orderPrime[x], orderPrime[y])) {
-							//cout << "ASPIRATION USED" << " ";
-						}
-						// add to tabu list
-						// if max size inner method removeFirst()
-						else {
-							tabuList->add(orderPrime[x], orderPrime[y]);
-						}
-						// new best path length
-						min = length;
-						// new solution
-						order = orderPrime;
-						bestPath = orderPrime;
-						changes++;
-					}
-				}
-			}
-		}
-
-		// cadence-- of each element 
-		// if cadence == 0 inner remove
-		tabuList->decreaseAll();
-
-		// if diversification enabled and no changes
-		// then generate random solution as a new order
-		if (diversification) {
-			if (changes == 0) {
-				streak++;
-				if (streak > cadence) {
-					order = generateOrderVector();
-					streak = 0;
-				}
-			}
-			else {
-				changes = 0;
-				streak = 0;
-			}
-		}
-		else {
-			if (changes == 0) {
-				streak++;
-				if (streak > cadence) {
-					break;
-				}
-			}
-			else {
-				changes = 0;
-				streak = 0;
-			}
-		}
-
-	}
-
-	delete tabuList;
-
-	return min;
-}
-
 // Tabu Search Algorithm Implementation (number of iterations, size of tabuList, cadence length of every city on tabuList,
 // neighbourhood true-Swap, false-Insert, restart after no changes during few iterations, 
 // random initial solution or using k Nearest Neighbour, aspiration criterium enabled/diabled)
@@ -492,7 +370,7 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 		// if cadence == 0 inner remove
 		tabuList->decreaseAll();
 
-		// if diversification enabled and back to start
+		// if diversification enabled check critical events
 		// then generate random solution as a new order
 
 		// back to init order
@@ -518,7 +396,7 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 			}
 		}
 		// no progress
-		if (streak > 100 && streak > problem->size) {
+		if (streak > 250 && streak > problem->size) {
 			//cout << "cannot find better solution after too many iterations" << endl;
 			if (diversification) {
 				order = generateOrderVector();
@@ -533,11 +411,126 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 	return globalMin;
 }
 
-// Held Karp Algorithm Implementation
-int TSP::HeldKarp()
-{
-	// to be done ...
-	return 0;
+// Tabu Search MyHybrid (I misunderstood idea of Tabu Search Algorithm and created something similar)
+int TSP::TabuSearchHybrid(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration) {
+
+	// initial solution x^0
+	vector<int> order;
+
+	if (!random) {
+		// use k Nearest Neighbour Algorithm to set initial solution
+		// after finding solution sets field bestPath
+		kNearestNeighbour();
+		order = bestPath;
+	}
+	else {
+		order = generateOrderVector();
+	}
+
+	// solution x'
+	vector<int> orderPrime;
+
+	int min = getSolutionLength(order);
+
+	int changes = 0;
+	int streak = 0;
+
+	bestPath = order;
+
+	TabuList *tabuList = new TabuList(tabuSize, cadence);
+
+	// for k = 1,2,3... k-1
+	for (int k = 0; k < iterations; k++) {
+
+		// generate new solution
+		for (int i = 1; i < problem->size; i++) {
+			for (int j = 1; j < problem->size; j++) {
+
+				if (i != j) {
+
+					if (!aspiration) {
+						if (tabuList->find(order[i], order[j])) {
+							continue;
+						}
+					}
+
+					int x = i;
+					int y = j;
+
+					orderPrime = order;
+
+					// swap or insert neighbourhood
+					if (SwapN) {
+						neighbourhoodSwap(orderPrime, x, y);
+					}
+					else {
+						neighbourhoodInsert(orderPrime, x, y);
+					}
+
+					int length = getSolutionLength(orderPrime);
+
+					// if solution x' better than current one
+
+					if (length < min) {
+
+						// apiration criterium
+						// remove from tabu list if solution is better
+						if (tabuList->findAndRemove(orderPrime[x], orderPrime[y])) {
+							//cout << "ASPIRATION USED" << " ";
+						}
+						// add to tabu list
+						// if max size inner method removeFirst()
+						else {
+							tabuList->add(orderPrime[x], orderPrime[y]);
+						}
+						// new best path length
+						min = length;
+						// new solution
+						order = orderPrime;
+						bestPath = orderPrime;
+						changes++;
+					}
+				}
+			}
+		}
+
+		// cadence-- of each element 
+		// if cadence == 0 inner remove
+		tabuList->decreaseAll();
+
+		// if diversification enabled and no changes
+		// then generate random solution as a new order
+		if (diversification) {
+			if (changes == 0) {
+				streak++;
+				if (streak > cadence) {
+					order = generateOrderVector();
+					streak = 0;
+				}
+			}
+			else {
+				changes = 0;
+				streak = 0;
+			}
+		}
+		else {
+			if (changes == 0) {
+				streak++;
+				if (streak > cadence) {
+					break;
+				}
+			}
+			else {
+				changes = 0;
+				streak = 0;
+			}
+		}
+
+	}
+
+	delete tabuList;
+
+	return min;
 }
 
 // show best path

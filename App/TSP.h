@@ -51,7 +51,6 @@ public:
 	int bruteForceTree();
 	int bruteForceTreeFaster();
 	int bruteForceSwap();
-	int HeldKarp(); // not implemented yet
 	int LocalSearch(int k);
 	int TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration);
 	int TabuSearchHybrid(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration);
