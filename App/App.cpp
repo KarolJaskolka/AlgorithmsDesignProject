@@ -35,7 +35,7 @@ int main()
 
 	int problems = 33; // number of problems from files[] to solve
 
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 3; i++) {
 
 		TSP *tsp = new TSP(files[i]);
 
@@ -71,14 +71,6 @@ int main()
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
 		cout << "Tabu Search : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		tsp->showBestPath();
-
-		timer->start();
-		bestPath = tsp->TabuSearchHybrid(1000, 10, 11, true, true, false, false);
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Tabu Search Hybrid : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
 		tsp->showBestPath();
 
 		timer->start();

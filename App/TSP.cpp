@@ -179,27 +179,6 @@ int TSP::BranchAndBound(bool kNN)
 	return lowerBound;
 }
 
-// Branch And Bound (penalty) Algorithm Implementation !does not work properly!
-int TSP::BranchAndBoundPenalty()
-{
-	int length = 0;
-
-	delete reducedProblem;
-
-	reducedProblem = new Matrix(problem);
-
-	for (int i = 0; i < problem->size; i++) {
-		reducedProblem->reduceMatrix();
-		reducedProblem->countAndFindPenalty();
-	}
-
-	for (int i = 0; i < reducedProblem->pathPoint.size(); i++) {
-		length += problem->matrix[reducedProblem->pathPoint[i]->getX()][reducedProblem->pathPoint[i]->getY()];
-	}
-
-	return length;
-}
-
 // Brute Force Implementation (use STL next_permutation)
 int TSP::bruteForceSTL()
 {
@@ -214,8 +193,6 @@ int TSP::bruteForceSTL()
 	// order changes in every loop (next_permutation)
 	// (size-1)! times
 	do {
-
-#pragma region PathLength
 
 		length = 0;
 
@@ -233,8 +210,6 @@ int TSP::bruteForceSTL()
 			}
 
 		}
-
-#pragma endregion
 
 	} while (std::next_permutation(order + 1, order + problem->size));
 
@@ -335,13 +310,6 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 
 	TabuList *tabuList = new TabuList(tabuSize, cadence);
 
-	//cout << "START ORDER" << endl;
-	//for (int i = 0; i < order.size(); i++) {
-	//	cout << order[i] << "->";
-	//}
-	//cout << endl;
-	//cout << "-------------------------------------------------\n";
-
 	// for k = 1,2,3... k-1
 	for (int k = 0; k < iterations; k++) {
 
@@ -356,16 +324,6 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 			streak++;
 		}
 
-		//cout << "-------------------------------------------------\n";
-		//cout << "ORDER" << endl;
-		//for (int i = 0; i < order.size(); i++) {
-		//	cout << order[i] << "->";
-		//}
-		//cout << endl;
-		//tabuList->show();
-
-		//cout << "localmin : "  <<  localMin << " globalmin : " << globalMin << " streak : " << streak << endl;
-
 		// cadence-- of each element 
 		// if cadence == 0 inner remove
 		tabuList->decreaseAll();
@@ -375,7 +333,6 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 
 		// back to init order
 		if (equals(order, initOrder)) {
-			//cout << "back to start" << endl;
 			if (diversification) {
 				order = generateOrderVector();
 				tabuList->clear();
@@ -386,7 +343,6 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 		}
 		// found again the same best solution
 		if (streak > 0 && equals(order, bestPath)) {
-			//cout << "stucked in loop" << endl;
 			if (diversification) {
 				order = generateOrderVector();
 				tabuList->clear();
@@ -397,7 +353,6 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 		}
 		// no progress
 		if (streak > 250 && streak > problem->size) {
-			//cout << "cannot find better solution after too many iterations" << endl;
 			if (diversification) {
 				order = generateOrderVector();
 				tabuList->clear();
@@ -475,9 +430,7 @@ int TSP::TabuSearchHybrid(int iterations, int tabuSize, int cadence, bool SwapN,
 
 						// apiration criterium
 						// remove from tabu list if solution is better
-						if (tabuList->findAndRemove(orderPrime[x], orderPrime[y])) {
-							//cout << "ASPIRATION USED" << " ";
-						}
+						if (tabuList->findAndRemove(orderPrime[x], orderPrime[y])) {}
 						// add to tabu list
 						// if max size inner method removeFirst()
 						else {
@@ -533,6 +486,27 @@ int TSP::TabuSearchHybrid(int iterations, int tabuSize, int cadence, bool SwapN,
 	return min;
 }
 
+// Branch And Bound (penalty) Algorithm Implementation !does not work properly!
+int TSP::BranchAndBoundPenalty()
+{
+	int length = 0;
+
+	delete reducedProblem;
+
+	reducedProblem = new Matrix(problem);
+
+	for (int i = 0; i < problem->size; i++) {
+		reducedProblem->reduceMatrix();
+		reducedProblem->countAndFindPenalty();
+	}
+
+	for (int i = 0; i < reducedProblem->pathPoint.size(); i++) {
+		length += problem->matrix[reducedProblem->pathPoint[i]->getX()][reducedProblem->pathPoint[i]->getY()];
+	}
+
+	return length;
+}
+
 // show best path
 void TSP::showBestPath() {
 	for (int i = 0; i < bestPath.size(); i++) {
@@ -565,8 +539,6 @@ void TSP::myPermutationTree(int start, vector<int> order, int &min) {
 
 	if (order.size() == problem->size) {
 
-#pragma region PathLength
-
 		int length = getSolutionLength(order);
 
 		if (length < min) {
@@ -576,8 +548,6 @@ void TSP::myPermutationTree(int start, vector<int> order, int &min) {
 			}
 			min = length;
 		}
-
-#pragma endregion
 
 		return;
 	}
@@ -600,8 +570,6 @@ void TSP::myPermutationTreeFaster(int start, std::vector<int> order, std::vector
 
 	if (next.size() == 0) {
 
-#pragma region PathLength
-
 		int length = getSolutionLength(order);
 
 		if (length < min) {
@@ -611,8 +579,6 @@ void TSP::myPermutationTreeFaster(int start, std::vector<int> order, std::vector
 			}
 			min = length;
 		}
-
-#pragma endregion
 
 		return;
 	}
@@ -627,8 +593,6 @@ void TSP::myPermutationSwap(vector<int> order, int left, int right, int &min) {
 
 	if (left == right) {
 
-#pragma region  PathLength
-
 		int length = getSolutionLength(order);
 
 		if (length < min) {
@@ -638,8 +602,6 @@ void TSP::myPermutationSwap(vector<int> order, int left, int right, int &min) {
 			}
 			min = length;
 		}
-
-#pragma endregion
 
 		return;
 	}
@@ -820,9 +782,6 @@ int TSP::localMinimum(std::vector<int> &order, bool SwapN, TabuList *tabuList, b
 						elementOne = copyOrder[i];
 						elementTwo = copyOrder[j];
 					}
-				}
-				else {
-					//cout << "Move on TabuList!!!" << copyOrder[i] << " " << copyOrder[j] << endl;
 				}
 			}
 		}

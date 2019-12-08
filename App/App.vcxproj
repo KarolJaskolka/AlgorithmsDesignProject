@@ -155,7 +155,6 @@
     <ClInclude Include="PathStep.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Point.h" />
-    <ClInclude Include="TabuElement.h" />
     <ClInclude Include="TabuList.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="TSP.h" />
@@ -171,7 +170,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Point.cpp" />
-    <ClCompile Include="TabuElement.cpp" />
     <ClCompile Include="TabuList.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="TSP.cpp" />

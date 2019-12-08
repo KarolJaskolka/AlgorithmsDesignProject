@@ -1,12 +1,10 @@
 #pragma once
 #include "Matrix.h"
 #include "PathStep.h"
-#include "TabuElement.h"
 class TabuList
 {
 private:
 	std::vector<PathStep*> tabu;
-	//std::vector<TabuElement *> tabu;
 	int cadence;
 	int size;
 

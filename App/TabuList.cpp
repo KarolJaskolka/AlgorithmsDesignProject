@@ -48,9 +48,6 @@ void TabuList::removeAtIndex(int index) {
 	tabu.erase(tabu.begin() + index);
 }
 
-/********************************************* PATH STEP ********************************************/
-
-
 // found - true, not found - false
 bool TabuList::find(int x, int y)
 {	
@@ -111,60 +108,6 @@ void TabuList::show()
 	}
 	cout << "-------------------------------------------------\n";
 }
-
-/******************************************* TABU ELEMENT **********************************************/
-/*
-bool TabuList::findAndRemove(int x, int y) {
-	bool found = false;
-	for (int i = 0; i < tabu.size(); i++) {
-		if (tabu[i]->getCity() == x) {
-			removeAtIndex(i);
-			found = true;
-			i--;
-		}
-		else if (tabu[i]->getCity() == y) {
-			removeAtIndex(i);
-			found = true;
-			i--;
-		}
-	}
-	return found;
-}
-
-bool TabuList::find(int x, int y) {
-	for (int i = 0; i < tabu.size(); i++) {
-		if (tabu[i]->getCity() == x || tabu[i]->getCity() == y) {
-			return true;
-		}
-	}
-	return false;
-}
-
-void TabuList::add(int x, int y) {
-	if (tabu.size() == size) {
-		removeFirst();
-	}
-	
-	tabu.push_back(new TabuElement(x, cadence));
-	
-	if (tabu.size() == size) {
-		removeFirst();
-	}
-
-	tabu.push_back(new TabuElement(y, cadence));
-}
-
-void TabuList::show() {
-	cout << "-------------------------------------------------\n";
-	cout << "TABU LIST: \n";
-	for (TabuElement* element : tabu) {
-		element->show();
-	}
-	cout << "-------------------------------------------------\n";
-}
-
-*/
-
 
 void TabuList::clear() {
 	tabu.clear();
