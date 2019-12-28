@@ -35,12 +35,15 @@ int main()
 
 	int problems = 33; // number of problems from files[] to solve
 
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 1; i++) {
 
 		TSP *tsp = new TSP(files[i]);
 
 		cout << " Best: " << best[i] << endl;
 
+		tsp->GeneticAlgorithm(10);
+
+		/*
 		timer->start();
 		bestPath = tsp->nearestNeighbour(0);
 		timer->stop();
@@ -116,7 +119,7 @@ int main()
 		cout << "--------------------------------------------------------------------------------------------------\n";
 
 		delete tsp;
-		
+		*/
 	}
 	
 	return 0;

@@ -486,6 +486,13 @@ int TSP::TabuSearchHybrid(int iterations, int tabuSize, int cadence, bool SwapN,
 	return min;
 }
 
+int TSP::GeneticAlgorithm(int populationSize) {
+
+	std::vector<vector<int>> population = initPopulation(populationSize);
+
+	return 0;
+}
+
 // Branch And Bound (penalty) Algorithm Implementation !does not work properly!
 int TSP::BranchAndBoundPenalty()
 {
@@ -837,4 +844,270 @@ bool TSP::equals(std::vector<int> order, std::vector<int> initOrder) {
 		}
 	}
 	return true;
+}
+
+// return population with random orders
+std::vector<vector<int>> TSP::initPopulation(int populationSize) {
+	
+	std::vector<vector<int>> population;
+
+	for (int i = 0; i < populationSize; i++) {
+		population.push_back(generateOrderVector());
+	}
+
+	return population;
+}
+
+void TSP::PartiallyMappedCrossover(std::vector<int> &p, std::vector<int> &q) {
+	
+	int k1 = rand() % problem->size;
+	int k2 = rand() % problem->size;
+
+	if (k1 == k2) {
+		k1 = (problem->size / 2) - (problem->size / 4);
+		k2 = (problem->size / 2) + (problem->size / 4);
+	}
+
+	if (k1 > k2) {
+		int temp = k1;
+		k1 = k2;
+		k2 = temp;
+	}
+
+	std::vector<int> r;
+	std::vector<int> s;
+
+	// init offspring with -1
+	for (int i = 0; i < problem->size; i++) {
+		r.push_back(-1);
+		s.push_back(-1);
+	}
+
+	std::vector<std::pair<int, int>> pairs;
+	
+	// transposition from parents to offspring between k1 and k2
+	for (int i = k1; i < k2; i++) {
+		r[i] = q[i];
+		s[i] = p[i];
+		// add to pairs
+		pairs.push_back(std::make_pair(q[i], p[i]));
+	}
+
+	// put cities from parents without confilcts
+	for (int i = 0; i < problem->size; i++) {
+		if (r[i] == -1) {
+			addPossible(r, p[i], i);
+		}
+		if (s[i] == -1) {
+			addPossible(s, q[i], i);
+		}
+	}
+
+	int city;
+
+	// use pairs to put other cities
+	for (int i = 0; i < problem->size; i++) {
+		if (r[i] == -1) {
+			
+			//city = getNthPair(pairs, p[i], 1);
+			//if (addPossible(r, city, i) == false) {
+			//	city = getNthPair(pairs, p[i], 2);
+			//	addPossible(r, city, i);
+			//}
+			
+			int j = 1;
+			do {
+				city = getNthPair(pairs, p[i], j);
+				j++;
+			} while (addPossible(r, city, i) == false);
+
+		}
+		if (s[i] == -1) {
+
+			//city = getNthPair(pairs, q[i], 1);
+			//if(addPossible(s, city, i) == false) {
+			//	city = getNthPair(pairs, q[i], 2);
+			//	addPossible(s, city, i);
+			//}
+
+			int j = 1;
+			do {
+				city = getNthPair(pairs, q[i], j);
+				j++;
+			} while (addPossible(s, city, i) == false);
+
+		}
+	}
+
+	p = r;
+	q = s;
+
+}
+
+void TSP::OrderedCrossover(std::vector<int> &p, std::vector<int> &q) {
+	
+	int k1 = rand() % problem->size;
+	int k2 = rand() % problem->size;
+	
+	if (k1 == k2) {
+		k1 = (problem->size / 2) - (problem->size / 4);
+		k2 = (problem->size / 2) + (problem->size / 4);
+	}
+
+	if (k1 > k2) {
+		int temp = k1;
+		k1 = k2;
+		k2 = temp;
+	}
+
+	std::vector<int> r; // first offspring
+	std::vector<int> s; // second offspring
+
+	std::vector<int> o1; // p order from k2 [k2,...,n,0,...,k2-1]
+	std::vector<int> o2; // q order from k2 [k2,...,n,0,...,k2-1]
+
+	// set o1 and o2
+	for (int i = 0; i < problem->size; i++) {
+		o1.push_back(p[(k2 + i) % problem->size]);
+		o2.push_back(q[(k2 + i) % problem->size]);
+	}
+
+	// init children with -1
+	for (int i = 0; i < problem->size; i++) {
+		r.push_back(-1);
+		s.push_back(-1);
+	}
+
+	// transposition from parents to offspring between k1 and k2
+	for (int i = k1; i < k2; i++) {
+		r[i] = q[i];
+		s[i] = p[i];
+	}
+
+	// copy from o1 and o2
+	for (int i = 0; i < problem->size; i++) {
+		if (r[(k2 + i) % problem->size] == -1) {
+			r[(k2 + i) % problem->size] = findCity(r, o1);
+		}
+		if (s[(k2 + i) % problem->size] == -1) {
+			s[(k2 + i) % problem->size] = findCity(s, o2);
+		}
+	}
+
+	// replace parents with offspring
+	p = r;
+	q = s;
+}
+
+bool TSP::addPossible(std::vector<int> &child, int city, int index) {
+	bool possible = true;
+
+	for (int i = 0; i < problem->size; i++) {
+		if (city == child[i]) possible = false;
+	}
+
+	if (possible) {
+		child[index] = city;
+	}
+
+	return possible;
+}
+
+int TSP::getNthPair(std::vector<std::pair<int, int>> pairs, int city, int n) {
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < pairs.size(); j++) {
+			if (pairs[j].first == city) {
+				city = pairs[j].second;
+				pairs.erase(pairs.begin() + j);
+				break;
+			}
+			if (pairs[j].second == city) {
+				city = pairs[j].first;
+				pairs.erase(pairs.begin() + j);
+				break;
+			}
+		}
+	}
+
+	return city;
+}
+
+int TSP::findCity(std::vector<int> child, std::vector<int> order) {
+
+	for (int i = 0; i < problem->size; i++) {
+
+		int city = order[i];
+		bool found = true;
+
+		for (int j = 0; j < problem->size; j++) {
+			if (child[j] == city) {
+				found = false;
+			}
+		}
+
+		if (found) return city;
+	}
+
+}
+
+void TSP::EdgeCrossover(std::vector<int> &p, std::vector<int> &q) {
+
+}
+
+// invert elements in random section
+void TSP::inversionMutation(std::vector<int> &individual) {
+
+	int sectionStart = rand() % problem->size;
+	int sectionEnd = rand() % problem->size;
+
+	if (sectionStart == sectionEnd) {
+		sectionStart = 0;
+		sectionEnd = 1 + (rand() % problem->size - 1);
+	}
+
+	if (sectionStart > sectionEnd) {
+		int temp = sectionStart;
+		sectionStart = sectionEnd;
+		sectionEnd = temp;
+	}
+
+	while (sectionStart < sectionEnd) {
+		neighbourhoodSwap(individual, sectionStart, sectionEnd);
+		sectionStart++;
+		sectionEnd--;
+	}
+
+}
+
+// insert (random) element before another (random) one
+void TSP::insertionMutation(std::vector<int> &individual) {
+	
+	int indexFirst = rand() % problem->size;
+	int indexSecond = rand() % problem->size;
+
+	// indexes must be different so take first and last possible index
+	if (indexFirst == indexSecond) {
+		indexFirst = 0;
+		indexSecond = problem->size - 1;
+	}
+
+	neighbourhoodInsert(individual, indexFirst, indexSecond);
+
+}
+
+// replace two random elements
+void TSP::transpositionMutation(std::vector<int> &individual) {
+	
+	int indexFirst = rand() % problem->size;
+	int indexSecond = rand() % problem->size;
+
+	// indexes must be different so take first and last possible index
+	if (indexFirst == indexSecond) {
+		indexFirst = 0;
+		indexSecond = problem->size - 1;
+	} 
+
+	neighbourhoodSwap(individual, indexFirst, indexSecond);
+
 }

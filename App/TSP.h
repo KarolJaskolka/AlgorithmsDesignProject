@@ -29,6 +29,18 @@ private:
 	void neighbourhoodInsert(std::vector<int> &order, int x, int y);
 	Matrix* findBetter(std::vector<Matrix*> &list, Matrix *best, Matrix *reduced, int &nextStart);
 	std::vector<int> generateOrderVector();
+	
+	// Genetic Algorithm 
+	std::vector<std::vector<int>> initPopulation(int populationSize);
+	void PartiallyMappedCrossover(std::vector<int> &p, std::vector<int> &q);
+	void OrderedCrossover(std::vector<int> &p, std::vector<int> &q);
+	void EdgeCrossover(std::vector<int> &p, std::vector<int> &q);
+	void inversionMutation(std::vector<int> &individual);
+	void insertionMutation(std::vector<int> &individual);
+	void transpositionMutation(std::vector<int> &individual);
+	int findCity(std::vector<int> child, std::vector<int> order);
+	bool addPossible(std::vector<int> &child, int city, int index);
+	int getNthPair(std::vector<std::pair<int, int>> pairs, int city, int n);
 
 public:
 
@@ -54,7 +66,8 @@ public:
 	int LocalSearch(int k);
 	int TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration);
 	int TabuSearchHybrid(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration);
-	
+	int GeneticAlgorithm(int populationSize);
+
 	// paths' display methods
 	void showBestPath();
 	void showTempPath();
