@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Matrix.h"
-#include "Point.h"
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -220,51 +219,6 @@ int Matrix::reduceMatrix(int row, int col, int lowerBound) {
 	bound = lowerBound + cost + reduceCost;
 
 	return bound;
-}
-
-// count all penalties and find maximum (BnB penalty)
-void Matrix::countAndFindPenalty() {
-	
-	Matrix *penaltyMatrix = new Matrix(size);
-
-	for (int i = 0; i < size; i++) {
-		for (int j = 0; j < size; j++) {
-			if (matrix[i][j] != 0) {
-				penaltyMatrix->matrix[i][j] = -1;
-			}
-			else {
-				int minRow = minRowValue(i, j);
-				int minCol = minColValue(j, i);
-				penaltyMatrix->matrix[i][j] = minRow + minCol;
-			}
-		}
-	}
-
-
-	int max = -1;
-	Point *point = new Point();
-	for (int i = 0; i < size; i++) {
-		for (int j = 0; j < size; j++) {
-			if (penaltyMatrix->matrix[i][j] >= max) {
-				max = penaltyMatrix->matrix[i][j];
-				point->setX(i);
-				point->setY(j);
-			}
-		}
-	}
-
-	for (int i = 0; i < size; i++) {
-		for (int j = 0; j < size; j++) {
-			if (i == point->getX() || j == point->getY()) {
-				matrix[i][j] = -1;
-			}
-		}
-	}
-	matrix[point->getY()][point->getX()] = -1;
-	pathPoint.push_back(point);
-
-	delete penaltyMatrix;
-
 }
 
 // find minimum value in row

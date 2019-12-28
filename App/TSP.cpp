@@ -509,15 +509,6 @@ void TSP::showTempPath() {
 	std::cout << tempPath[0] << endl;
 }
 
-// show best path (BnB [penalty] algorithm)
-void TSP::showPointPath() {
-	for (int i = 0; i < reducedProblem->pathPoint.size(); i++) {
-		std::cout << reducedProblem->pathPoint[i]->getX() << " -> "
-			<< reducedProblem->pathPoint[i]->getY() << " | ";
-	}
-	std::cout << endl;
-}
-
 // own permutation (size-1)! times, first digit is start
 void TSP::myPermutationTree(int start, vector<int> order, int &min) {
 
@@ -837,6 +828,7 @@ std::vector<vector<int>> TSP::initPopulation(int populationSize) {
 	return population;
 }
 
+// GeneticAlgorithm - PMX implementation
 void TSP::PartiallyMappedCrossover(std::vector<int> &p, std::vector<int> &q) {
 	
 	int k1 = rand() % problem->size;
@@ -923,6 +915,7 @@ void TSP::PartiallyMappedCrossover(std::vector<int> &p, std::vector<int> &q) {
 
 }
 
+// GeneticAlgorithm - OX implementation
 void TSP::OrderedCrossover(std::vector<int> &p, std::vector<int> &q) {
 	
 	int k1 = rand() % problem->size;
@@ -978,6 +971,7 @@ void TSP::OrderedCrossover(std::vector<int> &p, std::vector<int> &q) {
 	q = s;
 }
 
+// add city when no confilcts
 bool TSP::addPossible(std::vector<int> &child, int city, int index) {
 	bool possible = true;
 
@@ -992,6 +986,7 @@ bool TSP::addPossible(std::vector<int> &child, int city, int index) {
 	return possible;
 }
 
+// find n-th pair (PMX)
 int TSP::getNthPair(std::vector<std::pair<int, int>> pairs, int city, int n) {
 
 	for (int i = 0; i < n; i++) {
@@ -1012,6 +1007,7 @@ int TSP::getNthPair(std::vector<std::pair<int, int>> pairs, int city, int n) {
 	return city;
 }
 
+// find city (OX)
 int TSP::findCity(std::vector<int> child, std::vector<int> order) {
 
 	for (int i = 0; i < problem->size; i++) {
@@ -1030,6 +1026,7 @@ int TSP::findCity(std::vector<int> child, std::vector<int> order) {
 
 }
 
+// GeneticAlgorithm - EX implementation
 void TSP::EdgeCrossover(std::vector<int> &p, std::vector<int> &q) {
 
 }

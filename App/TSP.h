@@ -8,28 +8,34 @@ class TSP
 private:
 
 	Matrix *problem;
-	Matrix *reducedProblem;
+	Matrix *reducedProblem; // Branch And Bound
 
 	std::vector<int> bestPath;
-	std::vector<int> tempPath;
+	std::vector<int> tempPath; // Nearest Neighbour
 
 	// private methods
 
+	int *generateOrder(int n);
+	std::vector<int> generateOrderVector();
+	int getSolutionLength(std::vector<int>order);
+
+	// Brute Force
 	void myPermutationTree(int start, std::vector<int> order, int &min);
 	void myPermutationTreeFaster(int start, std::vector<int> order, std::vector<int> next, int &min);
 	void myPermutationSwap(std::vector<int> order, int left, int right, int &min);
-	int *generateOrder(int n);
-	bool equals(std::vector<int> order, std::vector<int> initOrder);
+
+	// Branch And Bound
+	Matrix* findBetter(std::vector<Matrix*> &list, Matrix *best, Matrix *reduced, int &nextStart);
+	void remove(std::vector<Matrix*> &list, int id);
+	bool isVisited(std::vector<int> visited, int city);
+
+	// LocalSearch & TabuSearch
 	int localMinimum(std::vector<int> &order, bool swapN, TabuList *tabuList, bool aspiration);
 	int localMinimum(std::vector<int> &order);
-	bool isVisited(std::vector<int> visited, int city);
-	void remove(std::vector<Matrix*> &list, int id);
-	int getSolutionLength(std::vector<int>order);
 	void neighbourhoodSwap(std::vector<int> &order, int x, int y);
 	void neighbourhoodInsert(std::vector<int> &order, int x, int y);
-	Matrix* findBetter(std::vector<Matrix*> &list, Matrix *best, Matrix *reduced, int &nextStart);
-	std::vector<int> generateOrderVector();
-	
+	bool equals(std::vector<int> order, std::vector<int> initOrder);
+
 	// Genetic Algorithm 
 	std::vector<std::vector<int>> initPopulation(int populationSize);
 	void PartiallyMappedCrossover(std::vector<int> &p, std::vector<int> &q);
@@ -57,20 +63,25 @@ public:
 
 	int nearestNeighbour(int start);
 	int kNearestNeighbour();
+
+	// 1
 	int BranchAndBound(bool kNN);
 	int bruteForceSTL();
 	int bruteForceTree();
 	int bruteForceTreeFaster();
 	int bruteForceSwap();
+
+	// 2
 	int LocalSearch(int k);
 	int TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration);
 	int TabuSearchHybrid(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration);
+	
+	// 3
 	int GeneticAlgorithm(int populationSize);
 
 	// paths' display methods
 	void showBestPath();
 	void showTempPath();
-	void showPointPath();
 
 };
 
