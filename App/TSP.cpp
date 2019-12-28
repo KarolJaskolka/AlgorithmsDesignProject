@@ -493,27 +493,6 @@ int TSP::GeneticAlgorithm(int populationSize) {
 	return 0;
 }
 
-// Branch And Bound (penalty) Algorithm Implementation !does not work properly!
-int TSP::BranchAndBoundPenalty()
-{
-	int length = 0;
-
-	delete reducedProblem;
-
-	reducedProblem = new Matrix(problem);
-
-	for (int i = 0; i < problem->size; i++) {
-		reducedProblem->reduceMatrix();
-		reducedProblem->countAndFindPenalty();
-	}
-
-	for (int i = 0; i < reducedProblem->pathPoint.size(); i++) {
-		length += problem->matrix[reducedProblem->pathPoint[i]->getX()][reducedProblem->pathPoint[i]->getY()];
-	}
-
-	return length;
-}
-
 // show best path
 void TSP::showBestPath() {
 	for (int i = 0; i < bestPath.size(); i++) {
