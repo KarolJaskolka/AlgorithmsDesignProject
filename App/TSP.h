@@ -37,10 +37,12 @@ private:
 	bool equals(std::vector<int> order, std::vector<int> initOrder);
 
 	// Genetic Algorithm 
+	
+	void showPopulation(std::vector<std::vector<int>> population);
 	std::vector<std::vector<int>> initPopulation(int populationSize);
-	void PartiallyMappedCrossover(std::vector<int> &p, std::vector<int> &q);
-	void OrderedCrossover(std::vector<int> &p, std::vector<int> &q);
-	void EdgeCrossover(std::vector<int> &p, std::vector<int> &q);
+	std::pair<std::vector<int>, std::vector<int>> PartiallyMappedCrossover(std::vector<int> p, std::vector<int> q);
+	std::pair<std::vector<int>, std::vector<int>> OrderedCrossover(std::vector<int> p, std::vector<int> q);
+	std::pair<std::vector<int>, std::vector<int>> EdgeCrossover(std::vector<int> p, std::vector<int> q);
 	void inversionMutation(std::vector<int> &individual);
 	void insertionMutation(std::vector<int> &individual);
 	void transpositionMutation(std::vector<int> &individual);
@@ -77,7 +79,7 @@ public:
 	int TabuSearchHybrid(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration);
 	
 	// 3
-	int GeneticAlgorithm(int populationSize);
+	int GeneticAlgorithm(int populationSize, int generations, bool ox, int mutation, int pM, int pC);
 
 	// paths' display methods
 	void showBestPath();

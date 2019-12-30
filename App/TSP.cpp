@@ -486,11 +486,105 @@ int TSP::TabuSearchHybrid(int iterations, int tabuSize, int cadence, bool SwapN,
 	return min;
 }
 
-int TSP::GeneticAlgorithm(int populationSize) {
+int TSP::GeneticAlgorithm(int populationSize, int generations, bool ox, int mutation, int pM, int pC) {
 
-	std::vector<vector<int>> population = initPopulation(populationSize);
+	// Init population
+	vector<vector<int>> population = initPopulation(populationSize);
+	
+	// Fitness getSolutionLength
+	// Sort by path length
+	std::sort(population.begin(), population.end(), [this](const vector<int> & a, const vector<int> & b)
+				{ return this->getSolutionLength(a) < this->getSolutionLength(b); });
 
-	return 0;
+	for (int i = 0; i < generations; i++) {
+
+		// Selection
+		if (population.size() > populationSize) {
+			population.erase(population.begin() + populationSize, population.end());
+		}
+		
+		//cout << "Population Best : " << getSolutionLength(population[0]) << "\n";
+
+		int loop = populationSize;
+
+		if (populationSize > population.size()) {
+			loop = population.size();
+		}
+
+		// Crossover
+		for (int j = 0; j < loop; j+=2) {
+			// e.g. pC = 80 -> 0.8 %
+			if (rand() % 100 < pC) {
+				
+				pair<vector<int>, vector<int>> offspring;
+
+				int x = rand() % loop;
+				int y = rand() % loop;
+
+				if (x == y) {
+					x = 0;
+					y = 1;
+				}
+
+				if (ox) {
+					offspring = OrderedCrossover(population[x], population[y]);
+				}
+				else {
+					offspring = PartiallyMappedCrossover(population[x], population[y]);
+				}
+				population.push_back(offspring.first);
+				population.push_back(offspring.second);
+			}
+		}
+
+		// Mutation
+		for (int j = 0; j < population.size(); j++) {
+			// e.g. pM = 1 -> 0.01 %
+			if (rand() % 100 < pM) {
+				switch (mutation) {
+				case 1:
+					inversionMutation(population[j]); // invert
+					break;
+				case 2:
+					insertionMutation(population[j]); // insert
+					break;
+				default:
+					transpositionMutation(population[j]); // swap
+					break;
+				}
+			}
+		}
+
+		// New population
+
+		std::sort(population.begin(), population.end(), [this](const vector<int> & a, const vector<int> & b)
+					{ return this->getSolutionLength(a) < this->getSolutionLength(b); });
+		
+		// Remove duplicates
+		population.erase(unique(population.begin(), population.end()), population.end());
+
+	}
+
+	//cout << "\nEnd Population Best : " << getSolutionLength(population[0]) << "\n";
+
+	bestPath = population[0];
+
+	int length = getSolutionLength(population[0]);
+
+	population.clear();
+	population.shrink_to_fit();
+
+	return length;
+}
+
+void TSP::showPopulation(std::vector<std::vector<int>> population) {
+	//cout << "\nPopulation : \n";
+	for (int i = 0; i < population.size(); i++) {
+		for (int j = 0; j < problem->size; j++) {
+			cout << population[i][j] << " ";
+		}
+		cout << " Length : " << getSolutionLength(population[i]) << endl;
+	}
 }
 
 // show best path
@@ -829,7 +923,7 @@ std::vector<vector<int>> TSP::initPopulation(int populationSize) {
 }
 
 // GeneticAlgorithm - PMX implementation
-void TSP::PartiallyMappedCrossover(std::vector<int> &p, std::vector<int> &q) {
+std::pair<vector<int>, vector<int>> TSP::PartiallyMappedCrossover(std::vector<int> p, std::vector<int> q) {
 	
 	int k1 = rand() % problem->size;
 	int k2 = rand() % problem->size;
@@ -880,12 +974,6 @@ void TSP::PartiallyMappedCrossover(std::vector<int> &p, std::vector<int> &q) {
 	for (int i = 0; i < problem->size; i++) {
 		if (r[i] == -1) {
 			
-			//city = getNthPair(pairs, p[i], 1);
-			//if (addPossible(r, city, i) == false) {
-			//	city = getNthPair(pairs, p[i], 2);
-			//	addPossible(r, city, i);
-			//}
-			
 			int j = 1;
 			do {
 				city = getNthPair(pairs, p[i], j);
@@ -894,12 +982,6 @@ void TSP::PartiallyMappedCrossover(std::vector<int> &p, std::vector<int> &q) {
 
 		}
 		if (s[i] == -1) {
-
-			//city = getNthPair(pairs, q[i], 1);
-			//if(addPossible(s, city, i) == false) {
-			//	city = getNthPair(pairs, q[i], 2);
-			//	addPossible(s, city, i);
-			//}
 
 			int j = 1;
 			do {
@@ -910,13 +992,12 @@ void TSP::PartiallyMappedCrossover(std::vector<int> &p, std::vector<int> &q) {
 		}
 	}
 
-	p = r;
-	q = s;
+	return std::make_pair(r, s);
 
 }
 
 // GeneticAlgorithm - OX implementation
-void TSP::OrderedCrossover(std::vector<int> &p, std::vector<int> &q) {
+std::pair<vector<int>, vector<int>> TSP::OrderedCrossover(std::vector<int> p, std::vector<int> q) {
 	
 	int k1 = rand() % problem->size;
 	int k2 = rand() % problem->size;
@@ -944,7 +1025,7 @@ void TSP::OrderedCrossover(std::vector<int> &p, std::vector<int> &q) {
 		o2.push_back(q[(k2 + i) % problem->size]);
 	}
 
-	// init children with -1
+	// init offspring with -1
 	for (int i = 0; i < problem->size; i++) {
 		r.push_back(-1);
 		s.push_back(-1);
@@ -966,9 +1047,7 @@ void TSP::OrderedCrossover(std::vector<int> &p, std::vector<int> &q) {
 		}
 	}
 
-	// replace parents with offspring
-	p = r;
-	q = s;
+	return std::make_pair(r, s);
 }
 
 // add city when no confilcts
@@ -1027,20 +1106,24 @@ int TSP::findCity(std::vector<int> child, std::vector<int> order) {
 }
 
 // GeneticAlgorithm - EX implementation
-void TSP::EdgeCrossover(std::vector<int> &p, std::vector<int> &q) {
+std::pair<vector<int>, vector<int>> TSP::EdgeCrossover(std::vector<int> p, std::vector<int> q) {
+	
+	std::vector<int> r; // first offspring
+	std::vector<int> s; // second offspring
 
+	return std::make_pair(r, s);
 }
 
 // invert elements in random section
 void TSP::inversionMutation(std::vector<int> &individual) {
 
-	int sectionStart = rand() % problem->size;
-	int sectionEnd = rand() % problem->size;
+	int sectionStart;
+	int sectionEnd;
 
-	if (sectionStart == sectionEnd) {
-		sectionStart = 0;
-		sectionEnd = 1 + (rand() % problem->size - 1);
-	}
+	do {
+		sectionStart = rand() % problem->size;
+		sectionEnd = rand() % problem->size;
+	} while (sectionStart == sectionEnd);
 
 	if (sectionStart > sectionEnd) {
 		int temp = sectionStart;
@@ -1059,30 +1142,28 @@ void TSP::inversionMutation(std::vector<int> &individual) {
 // insert (random) element before another (random) one
 void TSP::insertionMutation(std::vector<int> &individual) {
 	
-	int indexFirst = rand() % problem->size;
-	int indexSecond = rand() % problem->size;
+	int indexFirst;
+	int indexSecond;
 
-	// indexes must be different so take first and last possible index
-	if (indexFirst == indexSecond) {
-		indexFirst = 0;
-		indexSecond = problem->size - 1;
-	}
+	do {
+		indexFirst = rand() % problem->size;
+		indexSecond = rand() % problem->size;
+	} while (indexFirst == indexSecond);
 
 	neighbourhoodInsert(individual, indexFirst, indexSecond);
 
 }
 
-// replace two random elements
+// swap two random elements
 void TSP::transpositionMutation(std::vector<int> &individual) {
 	
-	int indexFirst = rand() % problem->size;
-	int indexSecond = rand() % problem->size;
-
-	// indexes must be different so take first and last possible index
-	if (indexFirst == indexSecond) {
-		indexFirst = 0;
-		indexSecond = problem->size - 1;
-	} 
+	int indexFirst;
+	int indexSecond;
+	
+	do {
+		indexFirst = rand() % problem->size;
+		indexSecond = rand() % problem->size;
+	} while (indexFirst == indexSecond);
 
 	neighbourhoodSwap(individual, indexFirst, indexSecond);
 

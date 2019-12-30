@@ -33,17 +33,77 @@ int main()
 	
 	int bestPath;
 
-	int problems = 33; // number of problems from files[] to solve
+	int problems = 10; // number of problems from files[] to solve
 
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < problems; i++) {
 
 		TSP *tsp = new TSP(files[i]);
 
 		cout << " Best: " << best[i] << endl;
 
-		tsp->GeneticAlgorithm(10);
-
+		timer->start();
+		bestPath = tsp->GeneticAlgorithm(100, 1000, true, 2, 1, 80);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Genetic Algorithm : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
+		tsp->showBestPath();
+		
 		/*
+		int popSize, mut, pM;
+		bool ox;
+
+		for (int j = 0; j < 2; j++) {
+			for (int k = 0; k < 3; k++) {
+				for (int l = 0; l < 2; l++) {
+					for (int m = 0; m < 2; m++) {
+							
+						if (j == 0) { popSize = 50; } else { popSize = 100; }
+						if (l == 0) { ox = true; } else { ox = false; }
+						if (m == 0) { pM = 1; } else { pM = 10; }
+						
+						switch (k) {
+						case 0:
+							mut = 1;
+							break;
+						case 1:
+							mut = 2;
+							break;
+						case 2:
+							mut = 3;
+							break;
+						}
+
+						timer->start();
+						bestPath = tsp->GeneticAlgorithm(popSize, 1000, ox, mut, pM, 80);
+						timer->stop();
+						cout << "--------------------------------------------------------------------------------------------------\n";
+						cout << "Time : " << timer->result() << " ms | ";
+						cout << "Genetic Algorithm " << "Size=" << popSize << " OX=" << ox << 
+							" mut=" << mut << " pM=" << pM << " : " << bestPath 
+							<< " Error " << error(best[i], bestPath) << " %" << endl;
+					}
+				}
+			}
+		}
+		
+		timer->start();
+		bestPath = tsp->LocalSearch(1000);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Local Search : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
+		tsp->showBestPath();
+
+		timer->start();
+		bestPath = tsp->TabuSearch(1000, 10, 11, true, true, false, false);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Tabu Search : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
+		tsp->showBestPath();
+
+		
 		timer->start();
 		bestPath = tsp->nearestNeighbour(0);
 		timer->stop();
@@ -58,22 +118,6 @@ int main()
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
 		cout << "K Nearest Neighbour : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		tsp->showBestPath();
-
-		timer->start();
-		bestPath = tsp->LocalSearch(1000);
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Local Search : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		tsp->showBestPath();
-
-		timer->start();
-		bestPath = tsp->TabuSearch(1000, 10, 11, true, true, true, false);
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Tabu Search : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
 		tsp->showBestPath();
 
 		timer->start();
