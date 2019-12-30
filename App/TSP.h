@@ -80,6 +80,7 @@ public:
 	
 	// 3
 	int GeneticAlgorithm(int populationSize, int generations, bool ox, int mutation, int pM, int pC);
+	int AntColonyOptimization(int iterations);
 
 	// paths' display methods
 	void showBestPath();

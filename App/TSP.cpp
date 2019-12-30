@@ -2,6 +2,7 @@
 #include "TSP.h"
 #include "Matrix.h"
 #include "TabuList.h"
+#include "Ant.h"
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -575,6 +576,104 @@ int TSP::GeneticAlgorithm(int populationSize, int generations, bool ox, int muta
 	population.shrink_to_fit();
 
 	return length;
+}
+
+int TSP::AntColonyOptimization(int iterations) {
+
+	double p = 0.5;
+
+	// Important : ants.size() == problem->size
+
+	vector<Ant*> ants;
+
+	// Init pheromone map
+	double ** pheromoneMap;
+	pheromoneMap = new double*[problem->size];
+
+	for (int i = 0; i < problem->size; i++) {
+		pheromoneMap[i] = new double[problem->size];
+		for (int j = 0; j < problem->size; j++) {
+			if (j != i) {
+				pheromoneMap[i][j] = 0.05;
+			}
+			else {
+				pheromoneMap[i][j] = 0.0;
+			}
+		}
+	}
+
+	// Init Ant Colony
+	for (int i = 0; i < problem->size; i++) {
+		ants.push_back(new Ant(problem->matrix, pheromoneMap, problem->size));
+	}
+
+	for (int k = 0; k < iterations; k++) {
+
+		// Select random start city for each ant
+		
+		vector<int> order = generateOrderVector(); // cities in random order
+		
+		for (int i = 0; i < ants.size(); i++) {
+			ants[i]->clearVisited();
+			ants[i]->setStartCity(order[i]);
+		}
+
+		// Run !
+		for (int i = 0; i < ants.size(); i++) {
+			ants[i]->run();
+		}
+
+		// Update pheromone
+
+		for (int i = 0; i < problem->size; i++) {
+			for (int j = 0; j < problem->size; j++) {
+				if (i != j) {
+					pheromoneMap[i][j] *= p;
+				}
+			}
+		}
+
+		for (int i = 0; i < ants.size(); i++) {
+			vector<int> path = ants[i]->getPath();
+			int length = getSolutionLength(path);
+			for (int j = 0; j < path.size() - 1; j++) {
+				int first = path[j];
+				int second = path[j + 1];
+				pheromoneMap[first][second] += 50.0/(double)length;
+			}
+		}
+	}
+
+	bestPath = ants[0]->getPath();
+	int min = getSolutionLength(bestPath);
+
+	for (int i = 0; i < ants.size(); i++) {
+
+		int length = getSolutionLength(ants[i]->getPath());
+		if (length < min) {
+			min = length;
+			bestPath = ants[i]->getPath();
+		} 
+		//cout << "Ant " << i << " Length : " << length  << "\n";
+		//ants[i]->showPath();
+
+	}
+
+	//ants[0]->showPheromoneMap();
+
+	for (int i = 0; i < ants.size(); i++) {
+		delete ants[i];
+	}
+
+	ants.clear();
+	ants.shrink_to_fit();
+
+	for (int i = 0; i < problem->size; i++) {
+		delete pheromoneMap[i];
+	}
+	delete pheromoneMap;
+
+	return min;
 }
 
 void TSP::showPopulation(std::vector<std::vector<int>> population) {

@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Ant.h" />
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="PathStep.h" />
     <ClInclude Include="pch.h" />
@@ -159,6 +160,7 @@
     <ClInclude Include="TSP.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Ant.cpp" />
     <ClCompile Include="App.cpp" />
     <ClCompile Include="Matrix.cpp" />
     <ClCompile Include="PathStep.cpp" />
