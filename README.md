@@ -4,7 +4,7 @@
 
 - Brute Force
 - Branch and Bound Algorithm 
-- K Nearest Neighbour Algorithm (to estimate BxB upper bound)
+- K Nearest Neighbour Algorithm
 
 ## Part 2 :
 
@@ -14,3 +14,4 @@
 ## Part 3 :
 
 - Genetic Algorithm
+- Ant Colony Optimization

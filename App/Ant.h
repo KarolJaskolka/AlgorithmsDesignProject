@@ -11,19 +11,19 @@ private:
 	double** pheromoneMap;
 	int numOfCities;
 
-	
 	bool notVisited(int nextCity);
 
 public:
+	
 	Ant(int** map, double** pheromoneMap, int numOfCities);
 	~Ant();
 
 	void setStartCity(int city);
 	void clearVisited();
-	std::vector<int> getPath();
-	void run();
+	void run(double alfa, double beta);
 	void showMap();
 	void showPheromoneMap();
 	void showPath();
+	std::vector<int> getPath();
 };
 

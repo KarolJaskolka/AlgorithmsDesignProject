@@ -3,6 +3,7 @@
 #include "Matrix.h"
 #include "TabuList.h"
 #include "Ant.h"
+#include "Timer.h"
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -48,6 +49,8 @@ int TSP::nearestNeighbour(int start)
 	int next;
 	// new start city
 	int newStart = start;
+	// clear tempPath
+	tempPath.clear();
 	// add to temporary best path (one of the k x NN)
 	tempPath.push_back(newStart);
 	// size - 1 paths to find (back to start will be added later)
@@ -367,127 +370,12 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 	return globalMin;
 }
 
-// Tabu Search MyHybrid (I misunderstood idea of Tabu Search Algorithm and created something similar)
-int TSP::TabuSearchHybrid(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration) {
-
-	// initial solution x^0
-	vector<int> order;
-
-	if (!random) {
-		// use k Nearest Neighbour Algorithm to set initial solution
-		// after finding solution sets field bestPath
-		kNearestNeighbour();
-		order = bestPath;
-	}
-	else {
-		order = generateOrderVector();
-	}
-
-	// solution x'
-	vector<int> orderPrime;
-
-	int min = getSolutionLength(order);
-
-	int changes = 0;
-	int streak = 0;
-
-	bestPath = order;
-
-	TabuList *tabuList = new TabuList(tabuSize, cadence);
-
-	// for k = 1,2,3... k-1
-	for (int k = 0; k < iterations; k++) {
-
-		// generate new solution
-		for (int i = 1; i < problem->size; i++) {
-			for (int j = 1; j < problem->size; j++) {
-
-				if (i != j) {
-
-					if (!aspiration) {
-						if (tabuList->find(order[i], order[j])) {
-							continue;
-						}
-					}
-
-					int x = i;
-					int y = j;
-
-					orderPrime = order;
-
-					// swap or insert neighbourhood
-					if (SwapN) {
-						neighbourhoodSwap(orderPrime, x, y);
-					}
-					else {
-						neighbourhoodInsert(orderPrime, x, y);
-					}
-
-					int length = getSolutionLength(orderPrime);
-
-					// if solution x' better than current one
-
-					if (length < min) {
-
-						// apiration criterium
-						// remove from tabu list if solution is better
-						if (tabuList->findAndRemove(orderPrime[x], orderPrime[y])) {}
-						// add to tabu list
-						// if max size inner method removeFirst()
-						else {
-							tabuList->add(orderPrime[x], orderPrime[y]);
-						}
-						// new best path length
-						min = length;
-						// new solution
-						order = orderPrime;
-						bestPath = orderPrime;
-						changes++;
-					}
-				}
-			}
-		}
-
-		// cadence-- of each element 
-		// if cadence == 0 inner remove
-		tabuList->decreaseAll();
-
-		// if diversification enabled and no changes
-		// then generate random solution as a new order
-		if (diversification) {
-			if (changes == 0) {
-				streak++;
-				if (streak > cadence) {
-					order = generateOrderVector();
-					streak = 0;
-				}
-			}
-			else {
-				changes = 0;
-				streak = 0;
-			}
-		}
-		else {
-			if (changes == 0) {
-				streak++;
-				if (streak > cadence) {
-					break;
-				}
-			}
-			else {
-				changes = 0;
-				streak = 0;
-			}
-		}
-
-	}
-
-	delete tabuList;
-
-	return min;
-}
-
-int TSP::GeneticAlgorithm(int populationSize, int generations, bool ox, int mutation, int pM, int pC) {
+// Genetic Algorithm implementation
+// X : [0 - OX] [1 - PMX] [2 - EX]
+// mutation : [0-invert] [1-insert] [2-swap]
+// pM : mutation probability
+// pC : crossover probability
+int TSP::GeneticAlgorithm(int populationSize, int generations, int X, int mutation, int pM, int pC) {
 
 	// Init population
 	vector<vector<int>> population = initPopulation(populationSize);
@@ -504,18 +392,16 @@ int TSP::GeneticAlgorithm(int populationSize, int generations, bool ox, int muta
 			population.erase(population.begin() + populationSize, population.end());
 		}
 		
-		//cout << "Population Best : " << getSolutionLength(population[0]) << "\n";
-
 		int loop = populationSize;
-
+		// After removing duplicates population.size() might be lower
 		if (populationSize > population.size()) {
 			loop = population.size();
 		}
 
 		// Crossover
 		for (int j = 0; j < loop; j+=2) {
-			// e.g. pC = 80 -> 0.8 %
-			if (rand() % 100 < pC) {
+			// e.g. pC = 80 -> 0.8
+			if ((rand() % 100) < pC) {
 				
 				pair<vector<int>, vector<int>> offspring;
 
@@ -527,12 +413,19 @@ int TSP::GeneticAlgorithm(int populationSize, int generations, bool ox, int muta
 					y = 1;
 				}
 
-				if (ox) {
+				switch (X) {
+				case 0:
 					offspring = OrderedCrossover(population[x], population[y]);
-				}
-				else {
+					break;
+				case 1:
 					offspring = PartiallyMappedCrossover(population[x], population[y]);
+					break;
+				default:
+					offspring.first = EdgeCrossover(population[x], population[y]);
+					offspring.second = EdgeCrossover(population[x], population[y]);
+					break;
 				}
+
 				population.push_back(offspring.first);
 				population.push_back(offspring.second);
 			}
@@ -543,10 +436,10 @@ int TSP::GeneticAlgorithm(int populationSize, int generations, bool ox, int muta
 			// e.g. pM = 1 -> 0.01 %
 			if (rand() % 100 < pM) {
 				switch (mutation) {
-				case 1:
+				case 0:
 					inversionMutation(population[j]); // invert
 					break;
-				case 2:
+				case 1:
 					insertionMutation(population[j]); // insert
 					break;
 				default:
@@ -557,7 +450,6 @@ int TSP::GeneticAlgorithm(int populationSize, int generations, bool ox, int muta
 		}
 
 		// New population
-
 		std::sort(population.begin(), population.end(), [this](const vector<int> & a, const vector<int> & b)
 					{ return this->getSolutionLength(a) < this->getSolutionLength(b); });
 		
@@ -565,8 +457,6 @@ int TSP::GeneticAlgorithm(int populationSize, int generations, bool ox, int muta
 		population.erase(unique(population.begin(), population.end()), population.end());
 
 	}
-
-	//cout << "\nEnd Population Best : " << getSolutionLength(population[0]) << "\n";
 
 	bestPath = population[0];
 
@@ -578,13 +468,14 @@ int TSP::GeneticAlgorithm(int populationSize, int generations, bool ox, int muta
 	return length;
 }
 
-int TSP::AntColonyOptimization(int iterations) {
-
-	double p = 0.5;
-
-	// Important : ants.size() == problem->size
-
-	vector<Ant*> ants;
+// Ant Colony Optimization implementation 
+// set : [0 - DAS] [1 - QAS] [2 - CAS] 
+// p : evaporation parameter [0,1]
+// alfa : pheromone regulation parameter 
+// beta : criterium (1/distance) regulation parameter
+// t0 : initial pheromone quantity
+// qt : quantity of pheromone to put down on edge
+int TSP::AntColonyOptimization(int iterations, int set, double p, double alfa, double beta, double t0, int qt) {
 
 	// Init pheromone map
 	double ** pheromoneMap;
@@ -593,14 +484,14 @@ int TSP::AntColonyOptimization(int iterations) {
 	for (int i = 0; i < problem->size; i++) {
 		pheromoneMap[i] = new double[problem->size];
 		for (int j = 0; j < problem->size; j++) {
-			if (j != i) {
-				pheromoneMap[i][j] = 0.05;
-			}
-			else {
-				pheromoneMap[i][j] = 0.0;
-			}
+			if (j != i) { pheromoneMap[i][j] = t0; }
+			else { pheromoneMap[i][j] = 0.0; }
 		}
 	}
+
+	vector<Ant*> ants;
+
+	// ants.size() == problem->size
 
 	// Init Ant Colony
 	for (int i = 0; i < problem->size; i++) {
@@ -620,11 +511,12 @@ int TSP::AntColonyOptimization(int iterations) {
 
 		// Run !
 		for (int i = 0; i < ants.size(); i++) {
-			ants[i]->run();
+			ants[i]->run(alfa, beta);
 		}
 
 		// Update pheromone
 
+		// Evaporate
 		for (int i = 0; i < problem->size; i++) {
 			for (int j = 0; j < problem->size; j++) {
 				if (i != j) {
@@ -633,33 +525,55 @@ int TSP::AntColonyOptimization(int iterations) {
 			}
 		}
 
+		// Put pheromone down
 		for (int i = 0; i < ants.size(); i++) {
+			
 			vector<int> path = ants[i]->getPath();
-			int length = getSolutionLength(path);
+
 			for (int j = 0; j < path.size() - 1; j++) {
+				
 				int first = path[j];
 				int second = path[j + 1];
-				pheromoneMap[first][second] += 50.0/(double)length;
+
+				switch (set) {
+				case 0:
+					// DAS - Ant Density
+					pheromoneMap[first][second] += qt;
+					break;
+				case 1:
+					// QAS - Ant Quantity
+					{
+					double distance = (double)problem->matrix[first][second];
+					pheromoneMap[first][second] += qt / distance;
+					}
+					break;
+				default:
+					// CAS - Ant Cycle
+					double cycle = (double)getSolutionLength(path);
+					pheromoneMap[first][second] += qt / cycle;
+					break;
+				}
 			}
+
 		}
 	}
 
+	// best solution
+
 	bestPath = ants[0]->getPath();
-	int min = getSolutionLength(bestPath);
+
+	int minLength = getSolutionLength(bestPath);
 
 	for (int i = 0; i < ants.size(); i++) {
 
 		int length = getSolutionLength(ants[i]->getPath());
-		if (length < min) {
-			min = length;
+		if (length < minLength) {
+			minLength = length;
 			bestPath = ants[i]->getPath();
 		} 
-		//cout << "Ant " << i << " Length : " << length  << "\n";
-		//ants[i]->showPath();
-
 	}
 
-	//ants[0]->showPheromoneMap();
+	// free memory
 
 	for (int i = 0; i < ants.size(); i++) {
 		delete ants[i];
@@ -673,9 +587,10 @@ int TSP::AntColonyOptimization(int iterations) {
 	}
 	delete pheromoneMap;
 
-	return min;
+	return minLength;
 }
 
+// display population (Genetic Algorithm)
 void TSP::showPopulation(std::vector<std::vector<int>> population) {
 	//cout << "\nPopulation : \n";
 	for (int i = 0; i < population.size(); i++) {
@@ -686,7 +601,7 @@ void TSP::showPopulation(std::vector<std::vector<int>> population) {
 	}
 }
 
-// show best path
+// display best path
 void TSP::showBestPath() {
 	for (int i = 0; i < bestPath.size(); i++) {
 		std::cout << bestPath[i] << " -> ";
@@ -694,7 +609,7 @@ void TSP::showBestPath() {
 	std::cout << bestPath[0] << endl;
 }
 
-// show best path (NN algorithm)
+// display best path (NN algorithm)
 void TSP::showTempPath() {
 	for (int i = 0; i < tempPath.size(); i++) {
 		std::cout << tempPath[i] << " -> ";
@@ -800,6 +715,22 @@ int * TSP::generateOrder(int n)
 	return order;
 }
 
+// return random generated order (std::vector)
+std::vector<int> TSP::generateOrderVector() {
+	vector<int> cities;
+	vector<int> order;
+	for (int i = 0; i < problem->size; i++) {
+		cities.push_back(i);
+	}
+
+	for (int i = 0; i < problem->size; i++) {
+		int city = rand() % cities.size();
+		order.push_back(cities[city]);
+		cities.erase(cities.begin() + city);
+	}
+	return order;
+}
+
 // check if city has been visited
 bool TSP::isVisited(std::vector<int> visited, int city)
 {
@@ -884,22 +815,6 @@ void TSP::neighbourhoodInsert(std::vector<int> &order, int x, int y) {
 
 	order[x] = temp;
 
-}
-
-// return random generated order (std::vector)
-std::vector<int> TSP::generateOrderVector() {
-	vector<int> cities;
-	vector<int> order;
-	for (int i = 0; i < problem->size; i++) {
-		cities.push_back(i);
-	}
-
-	for (int i = 0; i < problem->size; i++) {
-		int city = rand() % cities.size();
-		order.push_back(cities[city]);
-		cities.erase(cities.begin() + city);
-	}
-	return order;
 }
 
 // return local minimum found in neighbourhood (TabuSearch Algorithm)
@@ -1021,7 +936,7 @@ std::vector<vector<int>> TSP::initPopulation(int populationSize) {
 	return population;
 }
 
-// GeneticAlgorithm - PMX implementation
+// PMX implementation (GeneticAlgorithm) 
 std::pair<vector<int>, vector<int>> TSP::PartiallyMappedCrossover(std::vector<int> p, std::vector<int> q) {
 	
 	int k1 = rand() % problem->size;
@@ -1095,15 +1010,17 @@ std::pair<vector<int>, vector<int>> TSP::PartiallyMappedCrossover(std::vector<in
 
 }
 
-// GeneticAlgorithm - OX implementation
+// OX implementation (GeneticAlgorithm) 
 std::pair<vector<int>, vector<int>> TSP::OrderedCrossover(std::vector<int> p, std::vector<int> q) {
 	
-	int k1 = rand() % problem->size;
-	int k2 = rand() % problem->size;
+	int size = problem->size;
+
+	int k1 = rand() % size;
+	int k2 = rand() % size;
 	
 	if (k1 == k2) {
-		k1 = (problem->size / 2) - (problem->size / 4);
-		k2 = (problem->size / 2) + (problem->size / 4);
+		k1 = (size / 2) - (size / 4);
+		k2 = (size / 2) + (size / 4);
 	}
 
 	if (k1 > k2) {
@@ -1134,19 +1051,28 @@ std::pair<vector<int>, vector<int>> TSP::OrderedCrossover(std::vector<int> p, st
 	for (int i = k1; i < k2; i++) {
 		r[i] = q[i];
 		s[i] = p[i];
+		removeFromUnpicked(o1, r[i]);
+		removeFromUnpicked(o2, s[i]);
 	}
 
 	// copy from o1 and o2
 	for (int i = 0; i < problem->size; i++) {
 		if (r[(k2 + i) % problem->size] == -1) {
-			r[(k2 + i) % problem->size] = findCity(r, o1);
+			r[(k2 + i) % problem->size] = getFromOrder(o1);
 		}
 		if (s[(k2 + i) % problem->size] == -1) {
-			s[(k2 + i) % problem->size] = findCity(s, o2);
+			s[(k2 + i) % problem->size] = getFromOrder(o2);
 		}
 	}
 
 	return std::make_pair(r, s);
+}
+
+// return front city from order (also delete city)
+int TSP::getFromOrder(std::vector<int> &order) {
+	int city = order[0];
+	order.erase(order.begin());
+	return city;
 }
 
 // add city when no confilcts
@@ -1185,32 +1111,117 @@ int TSP::getNthPair(std::vector<std::pair<int, int>> pairs, int city, int n) {
 	return city;
 }
 
-// find city (OX)
-int TSP::findCity(std::vector<int> child, std::vector<int> order) {
+// EX implementation (GeneticAlgorithm)
+std::vector<int> TSP::EdgeCrossover(std::vector<int> p, std::vector<int> q) {
+	
+	std::vector<int> offspring;
 
-	for (int i = 0; i < problem->size; i++) {
+	std::vector<vector<int>> neighbourhood(p.size());
 
-		int city = order[i];
-		bool found = true;
+	for (int i = 0; i < p.size(); i++) {
 
-		for (int j = 0; j < problem->size; j++) {
-			if (child[j] == city) {
-				found = false;
-			}
+		if (i == 0) {
+			neighbourhood[p[i]].push_back(p[p.size() - 1]);
+			neighbourhood[q[i]].push_back(q[q.size() - 1]);
 		}
-
-		if (found) return city;
+		else {
+			neighbourhood[p[i]].push_back(p[(i - 1) % p.size()]);
+			neighbourhood[q[i]].push_back(q[(i - 1) % q.size()]);
+		}
+		
+		neighbourhood[p[i]].push_back(p[(i + 1) % p.size()]);
+		neighbourhood[q[i]].push_back(q[(i + 1) % q.size()]);
+		
 	}
 
+	vector<int> unpicked = generateOrderVector();
+
+	int currentCity = unpicked[0];
+	unpicked.erase(unpicked.begin());
+	removeFromNeighbourhood(neighbourhood, currentCity);
+	offspring.push_back(currentCity);
+
+	int next;
+
+	while (offspring.size() != p.size()) {
+
+		if (neighbourhood[currentCity].size() > 0) {
+			next = findReachedFromBoth(neighbourhood, currentCity);
+			if (next == -1) {
+				next = findNearest(neighbourhood, currentCity);
+			}
+		}
+		else {
+			next = randCityFromUnpicked(unpicked);
+		}
+
+		removeFromUnpicked(unpicked, next);
+		removeFromNeighbourhood(neighbourhood, next);
+		offspring.push_back(next);
+		currentCity = next;
+	}
+
+	return offspring;
 }
 
-// GeneticAlgorithm - EX implementation
-std::pair<vector<int>, vector<int>> TSP::EdgeCrossover(std::vector<int> p, std::vector<int> q) {
-	
-	std::vector<int> r; // first offspring
-	std::vector<int> s; // second offspring
+// find city reached from both parents (EX)
+int TSP::findReachedFromBoth(std::vector<std::vector<int>> &neighbourhood, int city) {
+	for (int i = 0; i < neighbourhood[city].size(); i++) {
+		for (int j = 0; j < neighbourhood[city].size(); j++) {
+			if (i != j) {
+				if (neighbourhood[city][i] == neighbourhood[city][j]) {
+					return neighbourhood[city][i];
+				}
+			}
+		}
+	}
+	return -1;
+}
 
-	return std::make_pair(r, s);
+// find nearest city from neighbourhood (EX)
+int TSP::findNearest(std::vector<std::vector<int>> &neighbourhood, int city) {
+
+	int distance = 2147483647;
+	int next;
+
+	//cout << "Neighbourhood city " << city << " " << neighbourhood[city].size() << endl;
+
+	for (int i = 0; i < neighbourhood[city].size(); i++) {
+		if (problem->matrix[city][neighbourhood[city][i]] < distance) {
+			distance = problem->matrix[city][neighbourhood[city][i]];
+			next = neighbourhood[city][i];
+		}
+	}
+
+	return next;
+}
+
+// remove city from unpicked (EX & OX) 
+void TSP::removeFromUnpicked(std::vector<int> &unpicked, int city) {
+	for (int i = 0; unpicked.size(); i++) {
+		if (unpicked[i] == city) {
+			unpicked.erase(unpicked.begin() + i);
+			break;
+		}
+	}
+}
+
+// return random city from unpicked (EX)
+int TSP::randCityFromUnpicked(std::vector<int> &unpicked) {
+	int city = rand() % unpicked.size();
+	return unpicked[city];
+}
+
+// remove city from neighbourhood (EX)
+void TSP::removeFromNeighbourhood(std::vector<std::vector<int>> &neighbourhood, int city) {
+	for (int i = 0; i < neighbourhood.size(); i++) {
+		for (int j = 0; j < neighbourhood[i].size(); j++) {
+			if (neighbourhood[i][j] == city) {
+				neighbourhood[i].erase(neighbourhood[i].begin() + j);
+				j--;
+			}
+		}
+	}
 }
 
 // invert elements in random section

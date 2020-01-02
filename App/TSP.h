@@ -37,21 +37,25 @@ private:
 	bool equals(std::vector<int> order, std::vector<int> initOrder);
 
 	// Genetic Algorithm 
-	
 	void showPopulation(std::vector<std::vector<int>> population);
 	std::vector<std::vector<int>> initPopulation(int populationSize);
 	std::pair<std::vector<int>, std::vector<int>> PartiallyMappedCrossover(std::vector<int> p, std::vector<int> q);
 	std::pair<std::vector<int>, std::vector<int>> OrderedCrossover(std::vector<int> p, std::vector<int> q);
-	std::pair<std::vector<int>, std::vector<int>> EdgeCrossover(std::vector<int> p, std::vector<int> q);
+	std::vector<int> EdgeCrossover(std::vector<int> p, std::vector<int> q);
 	void inversionMutation(std::vector<int> &individual);
 	void insertionMutation(std::vector<int> &individual);
 	void transpositionMutation(std::vector<int> &individual);
-	int findCity(std::vector<int> child, std::vector<int> order);
 	bool addPossible(std::vector<int> &child, int city, int index);
 	int getNthPair(std::vector<std::pair<int, int>> pairs, int city, int n);
+	int findReachedFromBoth(std::vector<std::vector<int>> &neighbourhood, int city);
+	int findNearest(std::vector<std::vector<int>> &neighbourhood, int city);
+	void removeFromNeighbourhood(std::vector<std::vector<int>> &neighbourhood, int city);
+	void removeFromUnpicked(std::vector<int> &unpicked, int city);
+	int randCityFromUnpicked(std::vector<int> &unpicked);
+	int getFromOrder(std::vector<int> &order);
 
 public:
-
+	
 	// constructors
 
 	TSP();
@@ -63,9 +67,6 @@ public:
 
 	// algorithms
 
-	int nearestNeighbour(int start);
-	int kNearestNeighbour();
-
 	// 1
 	int BranchAndBound(bool kNN);
 	int bruteForceSTL();
@@ -73,18 +74,19 @@ public:
 	int bruteForceTreeFaster();
 	int bruteForceSwap();
 
+	int nearestNeighbour(int start);
+	int kNearestNeighbour();
+
 	// 2
 	int LocalSearch(int k);
 	int TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration);
-	int TabuSearchHybrid(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration);
 	
 	// 3
-	int GeneticAlgorithm(int populationSize, int generations, bool ox, int mutation, int pM, int pC);
-	int AntColonyOptimization(int iterations);
+	int GeneticAlgorithm(int populationSize, int generations, int X, int mutation, int pM, int pC);
+	int AntColonyOptimization(int iterations, int set, double p, double alfa, double beta, double t0, int qt);
 
 	// paths' display methods
 	void showBestPath();
 	void showTempPath();
 
 };
-

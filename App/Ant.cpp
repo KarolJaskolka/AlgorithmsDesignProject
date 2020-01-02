@@ -22,10 +22,7 @@ void Ant::setStartCity(int city) {
 	visited.push_back(startCity);
 }
 
-void Ant::run() {
-
-	double alfa = 4.0;
-	double beta = 2.0;
+void Ant::run(double alfa, double beta) {
 
 	vector<double> probability;
 
@@ -40,7 +37,14 @@ void Ant::run() {
 
 		for (int i = 0; i < numOfCities; i++) {
 			if (currentCity != i && notVisited(i)) {
-				double N_ij = 1.0 / (double)(map[currentCity][i]);
+				double N_ij;
+				// WARNING! in data43 and data443 distance is equal 0 between several cities
+				if (map[currentCity][i] == 0) {
+					N_ij = 1.0 / (double)(0.1);
+				}
+				else {
+					N_ij = 1.0 / (double)(map[currentCity][i]);
+				}
 				double T_ij = (double)pheromoneMap[currentCity][i];
 				probability.push_back(pow(T_ij, alfa) * pow(N_ij, beta));
 			}
@@ -84,7 +88,6 @@ void Ant::run() {
 		probability.clear();
 		probability.shrink_to_fit();
 	}
-
 }
 
 void Ant::clearVisited() {
@@ -117,6 +120,7 @@ void Ant::showPheromoneMap() {
 				cout << pheromoneMap[i][j] << " ";
 			}
 			else {
+				// easier to read from terminal
 				cout << "0.00001" << " ";
 			}
 			
