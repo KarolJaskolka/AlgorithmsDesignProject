@@ -44,14 +44,80 @@ int main()
 	
 	int bestPath;
 
-	int problems = 1; // number of problems from files[] to solve
+	int problems = 33; // number of problems from files[] to solve
 
-	for (int i = 0; i < problems; i++) {
+	int maxDuration = 1000; // ms
+
+	for (int i = 0; i < 33; i++) {
 
 		TSP *tsp = new TSP(files[i]);
 
 		cout << " Best: " << best[i] << endl;
 
+		timer->start();
+		bestPath = tsp->LocalSearch(1000000, maxDuration);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Local Search : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
+
+		timer->start();
+		bestPath = tsp->TabuSearch(1000000, 10, 11, false, true, false, false, maxDuration);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Tabu Search Insert : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
+
+		timer->start();
+		bestPath = tsp->TabuSearch(1000000, 10, 11, true, true, false, false, maxDuration);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Tabu Search Swap : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
+
+		timer->start();
+		bestPath = tsp->AntColonyOptimization(1000000, 0, 0.5, 1, 2, 0.05, 0.1, maxDuration);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Ant Colony Optimization DAS : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
+
+		timer->start();
+		bestPath = tsp->AntColonyOptimization(1000000, 1, 0.5, 1, 2, 0.05, 1, maxDuration);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Ant Colony Optimization QAS : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
+
+		timer->start();
+		bestPath = tsp->AntColonyOptimization(1000000, 2, 0.5, 1, 2, 0.05, 10, maxDuration);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Ant Colony Optimization CAS : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
+
+		timer->start();
+		bestPath = tsp->GeneticAlgorithm(100, 1000000, 0, 2, 1, 80, maxDuration);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Genetic Algorithm OX : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
+
+		timer->start();
+		bestPath = tsp->GeneticAlgorithm(100, 1000000, 1, 2, 1, 80, maxDuration);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Genetic Algorithm PMX : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
+
+		timer->start();
+		bestPath = tsp->GeneticAlgorithm(100, 1000000, 2, 2, 1, 80, maxDuration);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Genetic Algorithm EX : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
+
+		/*
 		timer->start();
 		bestPath = tsp->nearestNeighbour(0);
 		timer->stop();
@@ -163,13 +229,15 @@ int main()
 		cout << "Time : " << timer->result() << " ms | ";
 		cout << "Ant Colony Optimization CAS : " <<  bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
 		tsp->showBestPath();
-
+		*/
 		cout << "--------------------------------------------------------------------------------------------------\n";
 
 		delete tsp;
 		
 	}
 	
+	delete timer;
+
 	return 0;
 }
 

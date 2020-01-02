@@ -19,3 +19,8 @@ double Timer::result()
 {
 	return  (double)std::chrono::duration<double, std::milli>(end - begin).count();
 }
+
+double Timer::duration()
+{
+	return  (double)std::chrono::duration<double, std::milli>(high_resolution_clock::now() - begin).count();
+}

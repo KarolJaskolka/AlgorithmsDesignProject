@@ -15,5 +15,6 @@ public:
 	void start();
 	void stop();
 	double result();
+	double duration();
 };
 

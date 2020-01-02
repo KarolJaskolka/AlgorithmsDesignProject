@@ -78,12 +78,12 @@ public:
 	int kNearestNeighbour();
 
 	// 2
-	int LocalSearch(int k);
-	int TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration);
+	int LocalSearch(int k, double maxDuration);
+	int TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration, double maxDuration);
 	
 	// 3
-	int GeneticAlgorithm(int populationSize, int generations, int X, int mutation, int pM, int pC);
-	int AntColonyOptimization(int iterations, int set, double p, double alfa, double beta, double t0, int qt);
+	int GeneticAlgorithm(int populationSize, int generations, int X, int mutation, int pM, int pC, double maxDuration);
+	int AntColonyOptimization(int iterations, int set, double p, double alfa, double beta, double t0, double qt, double maxDuration);
 
 	// paths' display methods
 	void showBestPath();

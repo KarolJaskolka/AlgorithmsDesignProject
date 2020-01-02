@@ -256,7 +256,10 @@ int TSP::bruteForceSwap()
 }
 
 // Local Search Algorithm Implementation
-int TSP::LocalSearch(int k) {
+int TSP::LocalSearch(int k, double maxDuration) {
+
+	Timer *stopwatch = new Timer();
+	stopwatch->start();
 
 	// use k Nearest Neighbour Algorithm to set initial solution
 	// after finding solution sets field bestPath
@@ -280,7 +283,12 @@ int TSP::LocalSearch(int k) {
 			bestPath = order;
 		}
 
+		if (stopwatch->duration() > maxDuration) break;
+
 	}
+
+	stopwatch->stop();
+	delete stopwatch;
 
 	return globalMin;
 }
@@ -288,7 +296,10 @@ int TSP::LocalSearch(int k) {
 // Tabu Search Algorithm Implementation (number of iterations, size of tabuList, cadence length of every city on tabuList,
 // neighbourhood true-Swap, false-Insert, restart after no changes during few iterations, 
 // random initial solution or using k Nearest Neighbour, aspiration criterium enabled/diabled)
-int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration) {
+int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration, double maxDuration) {
+
+	Timer *stopwatch = new Timer();
+	stopwatch->start();
 
 	// initial solution x^0
 	vector<int> order;
@@ -363,9 +374,14 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 			}
 		}
 
+		if (stopwatch->duration() > maxDuration) break;
+
 	}
 
 	delete tabuList;
+
+	stopwatch->stop();
+	delete stopwatch;
 
 	return globalMin;
 }
@@ -375,7 +391,10 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 // mutation : [0-invert] [1-insert] [2-swap]
 // pM : mutation probability
 // pC : crossover probability
-int TSP::GeneticAlgorithm(int populationSize, int generations, int X, int mutation, int pM, int pC) {
+int TSP::GeneticAlgorithm(int populationSize, int generations, int X, int mutation, int pM, int pC, double maxDuration) {
+
+	Timer *stopwatch = new Timer();
+	stopwatch->start();
 
 	// Init population
 	vector<vector<int>> population = initPopulation(populationSize);
@@ -456,6 +475,8 @@ int TSP::GeneticAlgorithm(int populationSize, int generations, int X, int mutati
 		// Remove duplicates
 		population.erase(unique(population.begin(), population.end()), population.end());
 
+		if (stopwatch->duration() > maxDuration) break;
+
 	}
 
 	bestPath = population[0];
@@ -464,6 +485,9 @@ int TSP::GeneticAlgorithm(int populationSize, int generations, int X, int mutati
 
 	population.clear();
 	population.shrink_to_fit();
+
+	stopwatch->stop();
+	delete stopwatch;
 
 	return length;
 }
@@ -475,7 +499,10 @@ int TSP::GeneticAlgorithm(int populationSize, int generations, int X, int mutati
 // beta : criterium (1/distance) regulation parameter
 // t0 : initial pheromone quantity
 // qt : quantity of pheromone to put down on edge
-int TSP::AntColonyOptimization(int iterations, int set, double p, double alfa, double beta, double t0, int qt) {
+int TSP::AntColonyOptimization(int iterations, int set, double p, double alfa, double beta, double t0, double qt, double maxDuration) {
+
+	Timer *stopwatch = new Timer();
+	stopwatch->start();
 
 	// Init pheromone map
 	double ** pheromoneMap;
@@ -556,6 +583,9 @@ int TSP::AntColonyOptimization(int iterations, int set, double p, double alfa, d
 			}
 
 		}
+
+		if (stopwatch->duration() > maxDuration) break;
+
 	}
 
 	// best solution
@@ -586,6 +616,9 @@ int TSP::AntColonyOptimization(int iterations, int set, double p, double alfa, d
 		delete pheromoneMap[i];
 	}
 	delete pheromoneMap;
+
+	stopwatch->stop();
+	delete stopwatch;
 
 	return minLength;
 }
