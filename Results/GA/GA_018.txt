@@ -1,4 +1,4 @@
-Population = 100, Mutation = Insert, pM = 0.01, pC = 0.8, Error = Avg. of 10
+Population = 100, Mutation = Swap, pM = 0.01, pC = 0.8, Error = Avg. of 10
 
 File name : data18.txt, Size : 18 Best: 187
 --------------------------------------------------------------------------------------------------

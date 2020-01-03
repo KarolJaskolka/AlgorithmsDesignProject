@@ -33,208 +33,216 @@ int main()
 					1473,1530,699,5620,1613,14422,6905,1608,25395,1839,
 						38673,1950,36230,6942,2755,1326,1163,2465,2720};
 
-
-	// GA test data
-	//string files[] = { "data10.txt", "data18.txt", "data26.txt", "data34.txt",  "data58.txt", "data65.txt",
-	//				 "data71.txt", "data100.txt",  "data171.txt", "data358.txt", "data403.txt", "data443.txt" };
-
-	//int best[] = { 212, 187, 937, 1286, 25395, 1839, 1950, 36230, 2755, 1163, 2465, 2720 };
-
 	Timer *timer = new Timer();
-	
-	int bestPath;
 
-	int problems = 33; // number of problems from files[] to solve
+	string fileName;
 
-	int maxDuration = 1000; // ms
+	cout << "File name : ";
+	cin >> fileName;
+
+	int index = -1, maxDuration, bestPath;
 
 	for (int i = 0; i < 33; i++) {
+		if (fileName == files[i]) {
+			index = i;
+		}
+	}
 
-		TSP *tsp = new TSP(files[i]);
+	if (index != -1) {
+		
+		cout << "Max duration time [ms] : ";
+		cin >> maxDuration;
 
-		cout << " Best: " << best[i] << endl;
+		TSP *tsp = new TSP("Data/" + files[index]);
 
-		timer->start();
-		bestPath = tsp->LocalSearch(1000000, maxDuration);
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Local Search : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-
-		timer->start();
-		bestPath = tsp->TabuSearch(1000000, 10, 11, false, true, false, false, maxDuration);
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Tabu Search Insert : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-
-		timer->start();
-		bestPath = tsp->TabuSearch(1000000, 10, 11, true, true, false, false, maxDuration);
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Tabu Search Swap : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-
-		timer->start();
-		bestPath = tsp->AntColonyOptimization(1000000, 0, 0.5, 1, 2, 0.05, 0.1, maxDuration);
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Ant Colony Optimization DAS : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-
-		timer->start();
-		bestPath = tsp->AntColonyOptimization(1000000, 1, 0.5, 1, 2, 0.05, 1, maxDuration);
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Ant Colony Optimization QAS : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-
-		timer->start();
-		bestPath = tsp->AntColonyOptimization(1000000, 2, 0.5, 1, 2, 0.05, 10, maxDuration);
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Ant Colony Optimization CAS : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-
-		timer->start();
-		bestPath = tsp->GeneticAlgorithm(100, 1000000, 0, 2, 1, 80, maxDuration);
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Genetic Algorithm OX : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-
-		timer->start();
-		bestPath = tsp->GeneticAlgorithm(100, 1000000, 1, 2, 1, 80, maxDuration);
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Genetic Algorithm PMX : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-
-		timer->start();
-		bestPath = tsp->GeneticAlgorithm(100, 1000000, 2, 2, 1, 80, maxDuration);
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Genetic Algorithm EX : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-
-		/*
-		timer->start();
-		bestPath = tsp->nearestNeighbour(0);
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Nearest Neighbour [0] : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		tsp->showTempPath();
+		cout << " Best: " << best[index] << endl;
 
 		timer->start();
 		bestPath = tsp->kNearestNeighbour();
 		timer->stop();
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
-		cout << "K Nearest Neighbour : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		tsp->showBestPath();
+		cout << "K Nearest Neighbour : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
 
 		timer->start();
-		bestPath = tsp->bruteForceSTL();
+		bestPath = tsp->TabuSearch(1000000, 10, 11, false, true, true, false, maxDuration);
 		timer->stop();
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Brute Force (STL) : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		tsp->showBestPath();
+		cout << "Tabu Search Rand Insert : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
 
 		timer->start();
-		bestPath = tsp->BranchAndBound(false);
+		bestPath = tsp->TabuSearch(1000000, 10, 11, true, true, true, false, maxDuration);
 		timer->stop();
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Branch And Bound NN[0] : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		tsp->showBestPath();
+		cout << "Tabu Search Rand Swap : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
 
 		timer->start();
-		bestPath = tsp->BranchAndBound(true);
+		bestPath = tsp->TabuSearch(1000000, 10, 11, false, true, false, false, maxDuration);
 		timer->stop();
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Branch And Bound kNN : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		tsp->showBestPath();
+		cout << "Tabu Search kNN Insert : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
 
 		timer->start();
-		bestPath = tsp->LocalSearch(1000);
+		bestPath = tsp->TabuSearch(1000000, 10, 11, true, true, false, false, maxDuration);
 		timer->stop();
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Local Search : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		tsp->showBestPath();
+		cout << "Tabu Search kNN Swap : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
 
 		timer->start();
-		bestPath = tsp->TabuSearch(1000, 10, 11, true, true, false, false);
+		bestPath = tsp->GeneticAlgorithm(100, 1000000, 0, 0, 1, 80, maxDuration);
 		timer->stop();
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Tabu Search Swap : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		tsp->showBestPath();
+		cout << "Genetic Algorithm OX Invert : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
 
 		timer->start();
-		bestPath = tsp->TabuSearch(1000, 10, 11, false, true, false, false);
+		bestPath = tsp->GeneticAlgorithm(100, 1000000, 0, 1, 1, 80, maxDuration);
 		timer->stop();
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Tabu Search Insert : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		tsp->showBestPath();
+		cout << "Genetic Algorithm OX Insert : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
 
 		timer->start();
-		bestPath = tsp->GeneticAlgorithm(100, 1000, 0, 2, 1, 80);
+		bestPath = tsp->GeneticAlgorithm(100, 1000000, 0, 2, 1, 80, maxDuration);
 		timer->stop();
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Genetic Algorithm OX : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		tsp->showBestPath();
+		cout << "Genetic Algorithm OX Swap : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
 
 		timer->start();
-		bestPath = tsp->GeneticAlgorithm(100, 1000, 1, 2, 1, 80);
+		bestPath = tsp->GeneticAlgorithm(100, 1000000, 1, 0, 1, 80, maxDuration);
 		timer->stop();
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Genetic Algorithm PMX : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		tsp->showBestPath();
+		cout << "Genetic Algorithm PMX Invert : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
 
 		timer->start();
-		bestPath = tsp->GeneticAlgorithm(100, 1000, 2, 2, 1, 80);
+		bestPath = tsp->GeneticAlgorithm(100, 1000000, 1, 1, 1, 80, maxDuration);
 		timer->stop();
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Genetic Algorithm EX : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		tsp->showBestPath();
+		cout << "Genetic Algorithm PMX Insert : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
 
 		timer->start();
-		bestPath = tsp->AntColonyOptimization(100, 0, 0.5, 1, 2, 0.05, 0.1);
+		bestPath = tsp->GeneticAlgorithm(100, 1000000, 1, 2, 1, 80, maxDuration);
 		timer->stop();
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Ant Colony Optimization DAS : " <<  bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		tsp->showBestPath();
+		cout << "Genetic Algorithm PMX Swap : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
 
 		timer->start();
-		bestPath = tsp->AntColonyOptimization(100, 1, 0.5, 1, 2, 0.05, 1);
+		bestPath = tsp->GeneticAlgorithm(100, 1000000, 2, 0, 1, 80, maxDuration);
 		timer->stop();
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Ant Colony Optimization QAS : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		tsp->showBestPath();
+		cout << "Genetic Algorithm EX Invert : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
 
 		timer->start();
-		bestPath = tsp->AntColonyOptimization(100, 2, 0.5, 1, 2, 0.05, 10);
+		bestPath = tsp->GeneticAlgorithm(100, 1000000, 2, 1, 1, 80, maxDuration);
 		timer->stop();
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Ant Colony Optimization CAS : " <<  bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		tsp->showBestPath();
-		*/
+		cout << "Genetic Algorithm EX Insert : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
+
+		timer->start();
+		bestPath = tsp->GeneticAlgorithm(100, 1000000, 2, 2, 1, 80, maxDuration);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Genetic Algorithm EX Swap : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
+
+		timer->start();
+		bestPath = tsp->AntColonyOptimization(1000000, 0, 0.5, 1, 2, 0.05, 0.1, maxDuration);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Ant Colony Optimization DAS : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
+
+		timer->start();
+		bestPath = tsp->AntColonyOptimization(1000000, 1, 0.5, 1, 2, 0.05, 1, maxDuration);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Ant Colony Optimization QAS : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
+
+		timer->start();
+		bestPath = tsp->AntColonyOptimization(1000000, 2, 0.5, 1, 2, 0.05, 10, maxDuration);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Ant Colony Optimization CAS : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
+
+		delete tsp;
+	}
+	else {
+		cout << "File Not Found" << endl;
+	}
+	
+	/*
+	for (int i = 0; i < 33; i++) {
+
+		TSP *tsp = new TSP("Data/" + files[i]);
+
+		cout << " Best: " << best[i] << endl;
+
+		timer->start();
+		bestPath = tsp->GeneticAlgorithm(100, 1000000, 0, 2, 1, 80, 1000);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Genetic Algorithm OX Swap : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
+
+		//timer->start();
+		//bestPath = tsp->bruteForceSTL();
+		//timer->stop();
+		//cout << "--------------------------------------------------------------------------------------------------\n";
+		//cout << "Time : " << timer->result() << " ms | ";
+		//cout << "Brute Force (STL) : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
+		//tsp->showBestPath();
+
+		//timer->start();
+		//bestPath = tsp->BranchAndBound(false);
+		//timer->stop();
+		//cout << "--------------------------------------------------------------------------------------------------\n";
+		//cout << "Time : " << timer->result() << " ms | ";
+		//cout << "Branch And Bound NN[0] : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
+		//tsp->showBestPath();
+
+		//timer->start();
+		//bestPath = tsp->BranchAndBound(true);
+		//timer->stop();
+		//cout << "--------------------------------------------------------------------------------------------------\n";
+		//cout << "Time : " << timer->result() << " ms | ";
+		//cout << "Branch And Bound kNN : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
+		//tsp->showBestPath();
+
 		cout << "--------------------------------------------------------------------------------------------------\n";
 
 		delete tsp;
 		
 	}
+	*/
 	
 	delete timer;
 

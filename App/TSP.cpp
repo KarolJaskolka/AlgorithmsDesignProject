@@ -471,11 +471,11 @@ int TSP::GeneticAlgorithm(int populationSize, int generations, int X, int mutati
 		// New population
 		std::sort(population.begin(), population.end(), [this](const vector<int> & a, const vector<int> & b)
 					{ return this->getSolutionLength(a) < this->getSolutionLength(b); });
-		
-		// Remove duplicates
-		population.erase(unique(population.begin(), population.end()), population.end());
 
-		if (stopwatch->duration() > maxDuration) break;
+// Remove duplicates
+population.erase(unique(population.begin(), population.end()), population.end());
+
+if (stopwatch->duration() > maxDuration) break;
 
 	}
 
@@ -528,9 +528,9 @@ int TSP::AntColonyOptimization(int iterations, int set, double p, double alfa, d
 	for (int k = 0; k < iterations; k++) {
 
 		// Select random start city for each ant
-		
+
 		vector<int> order = generateOrderVector(); // cities in random order
-		
+
 		for (int i = 0; i < ants.size(); i++) {
 			ants[i]->clearVisited();
 			ants[i]->setStartCity(order[i]);
@@ -554,11 +554,11 @@ int TSP::AntColonyOptimization(int iterations, int set, double p, double alfa, d
 
 		// Put pheromone down
 		for (int i = 0; i < ants.size(); i++) {
-			
+
 			vector<int> path = ants[i]->getPath();
 
 			for (int j = 0; j < path.size() - 1; j++) {
-				
+
 				int first = path[j];
 				int second = path[j + 1];
 
@@ -569,8 +569,11 @@ int TSP::AntColonyOptimization(int iterations, int set, double p, double alfa, d
 					break;
 				case 1:
 					// QAS - Ant Quantity
-					{
+				{
 					double distance = (double)problem->matrix[first][second];
+					if ((int)distance == 0) {
+						distance = 0.1;
+					}
 					pheromoneMap[first][second] += qt / distance;
 					}
 					break;

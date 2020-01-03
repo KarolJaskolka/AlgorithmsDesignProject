@@ -1,4 +1,4 @@
-Population = 100, Mutation = Insert, pM = 0.01, pC = 0.8, Error = Avg. of 5
+Population = 100, Mutation = Swap, pM = 0.01, pC = 0.8, Error = Avg. of 5
 
 File name : rbg403.atsp.txt, Size : 403 Best: 2465
 --------------------------------------------------------------------------------------------------

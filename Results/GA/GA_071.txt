@@ -1,4 +1,4 @@
-Population = 100, Mutation = Insert, pM = 0.01, pC = 0.8, Error = Avg. of 10
+Population = 100, Mutation = Swap, pM = 0.01, pC = 0.8, Error = Avg. of 10
 
 File name : ftv70.atsp.txt, Size : 71 Best: 1950
 --------------------------------------------------------------------------------------------------

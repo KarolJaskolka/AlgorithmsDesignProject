@@ -64,39 +64,209 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="data10.txt" />
-    <Text Include="data11.txt" />
-    <Text Include="data12.txt" />
-    <Text Include="data13.txt" />
-    <Text Include="data14.txt" />
-    <Text Include="data15.txt" />
-    <Text Include="data16.txt" />
-    <Text Include="data18.txt" />
-    <Text Include="data5.txt" />
-    <Text Include="data21.txt" />
-    <Text Include="data24.txt" />
-    <Text Include="data26.txt" />
-    <Text Include="data29.txt" />
-    <Text Include="data42.txt" />
-    <Text Include="data58.txt" />
-    <Text Include="data120.txt" />
-    <Text Include="data34.txt" />
-    <Text Include="data36.txt" />
-    <Text Include="data39.txt" />
-    <Text Include="data43.txt" />
-    <Text Include="data45.txt" />
-    <Text Include="data48.txt" />
-    <Text Include="data53.txt" />
-    <Text Include="data56.txt" />
-    <Text Include="data65.txt" />
-    <Text Include="data70.txt" />
-    <Text Include="data71.txt" />
-    <Text Include="data100.txt" />
-    <Text Include="data171.txt" />
-    <Text Include="data323.txt" />
-    <Text Include="data358.txt" />
-    <Text Include="data403.txt" />
-    <Text Include="data443.txt" />
-    <Text Include="data17.txt" />
+    <Text Include="data5.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data10.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data11.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data12.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data13.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data14.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data15.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data16.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data17.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data18.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data21.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data24.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data26.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data29.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data34.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data36.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data39.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data42.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data43.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data45.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data48.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data53.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data56.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data58.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data65.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data70.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data71.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data100.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data120.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data171.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data323.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data358.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data403.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="data443.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data5.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data10.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data11.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data12.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data13.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data14.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data15.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data16.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data17.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data18.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data21.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data24.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data26.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data29.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data34.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data36.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data39.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data42.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data43.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data45.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data48.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data53.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data56.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data58.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data65.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data70.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data71.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data100.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data120.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data171.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data323.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data358.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data403.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Data\data443.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
