@@ -1235,62 +1235,12 @@ int TSP::getNthPair(std::vector<std::pair<int, int>> pairs, int city, int n) {
 	return city;
 }
 
-// find city reached from both parents (EX)
-int TSP::findReachedFromBoth(std::vector<std::vector<int>> &neighbourhood, int city) {
-	for (int i = 0; i < neighbourhood[city].size(); i++) {
-		for (int j = 0; j < neighbourhood[city].size(); j++) {
-			if (i != j) {
-				if (neighbourhood[city][i] == neighbourhood[city][j]) {
-					return neighbourhood[city][i];
-				}
-			}
-		}
-	}
-	return -1;
-}
-
-// find nearest city from neighbourhood (EX)
-int TSP::findNearest(std::vector<std::vector<int>> &neighbourhood, int city) {
-
-	int distance = 2147483647;
-	int next;
-
-	//cout << "Neighbourhood city " << city << " " << neighbourhood[city].size() << endl;
-
-	for (int i = 0; i < neighbourhood[city].size(); i++) {
-		if (problem->matrix[city][neighbourhood[city][i]] < distance) {
-			distance = problem->matrix[city][neighbourhood[city][i]];
-			next = neighbourhood[city][i];
-		}
-	}
-
-	return next;
-}
-
-// remove city from unpicked (EX & OX) 
+// remove city from unpicked (OX) 
 void TSP::removeFromUnpicked(std::vector<int> &unpicked, int city) {
 	for (int i = 0; unpicked.size(); i++) {
 		if (unpicked[i] == city) {
 			unpicked.erase(unpicked.begin() + i);
 			break;
-		}
-	}
-}
-
-// return random city from unpicked (EX)
-int TSP::randCityFromUnpicked(std::vector<int> &unpicked) {
-	int city = rand() % unpicked.size();
-	return unpicked[city];
-}
-
-// remove city from neighbourhood (EX)
-void TSP::removeFromNeighbourhood(std::vector<std::vector<int>> &neighbourhood, int city) {
-	for (int i = 0; i < neighbourhood.size(); i++) {
-		for (int j = 0; j < neighbourhood[i].size(); j++) {
-			if (neighbourhood[i][j] == city) {
-				neighbourhood[i].erase(neighbourhood[i].begin() + j);
-				j--;
-			}
 		}
 	}
 }

@@ -49,11 +49,7 @@ private:
 	void transpositionMutation(std::vector<int> &individual);
 	bool addPossible(std::vector<int> &child, int city, int index);
 	int getNthPair(std::vector<std::pair<int, int>> pairs, int city, int n);
-	int findReachedFromBoth(std::vector<std::vector<int>> &neighbourhood, int city);
-	int findNearest(std::vector<std::vector<int>> &neighbourhood, int city);
-	void removeFromNeighbourhood(std::vector<std::vector<int>> &neighbourhood, int city);
 	void removeFromUnpicked(std::vector<int> &unpicked, int city);
-	int randCityFromUnpicked(std::vector<int> &unpicked);
 	int getFromOrder(std::vector<int> &order);
 
 public:
