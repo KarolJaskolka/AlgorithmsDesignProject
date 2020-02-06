@@ -35,12 +35,20 @@ void Ant::run(double alfa, double beta) {
 		// T_ij - pheromone on edge ij
 		// N_ij - distance on edge ij
 
+		if (currentCity >= numOfCities) {
+			cout << "CURRENT CITY = " << currentCity << endl;
+			showPath();
+			showPheromoneMap();
+			showMap();
+			break;
+		}
+
 		for (int i = 0; i < numOfCities; i++) {
 			if (currentCity != i && notVisited(i)) {
 				double N_ij;
 				// WARNING! in data43 and data443 distance is equal 0 between several cities
 				if (map[currentCity][i] == 0) {
-					N_ij = 1.0 / (double)(0.1);
+					N_ij = 1.0 / (double)(1.0);
 				}
 				else {
 					N_ij = 1.0 / (double)(map[currentCity][i]);
@@ -67,17 +75,23 @@ void Ant::run(double alfa, double beta) {
 			}
 		}
 		
-		// choose city with highest probability
-
 		int next;
-		double best = -1;
+		
+		next = roulette(probability);
 
-		for (int i = 0; i < numOfCities; i++) {
-			if (probability[i] > best) {
-				next = i;
-				best = probability[i];
-			}
-		}
+		if(next == -1){
+			next = randFromNotVisited();
+		} 
+		
+		// choose city with highest probability
+		// double best = -1;
+
+		//for (int i = 0; i < numOfCities; i++) {
+		//	if (probability[i] > best) {
+		//		next = i;
+		//		best = probability[i];
+		//	}
+		//}
 
 		// set new current city
 		currentCity = next;
@@ -87,6 +101,35 @@ void Ant::run(double alfa, double beta) {
 		// clear probability
 		probability.clear();
 		probability.shrink_to_fit();
+	}
+}
+
+int Ant::roulette(std::vector<double> prob) {
+
+	double random = rand() / double(RAND_MAX);
+
+	double sum = 0;
+
+	for (int i = 0; i < prob.size(); i++) {
+		sum += prob[i];
+		prob[i] = sum;
+	}
+
+	for (int i = 0; i < prob.size(); i++) {
+		if (random <= prob[i]) {
+			return i;
+		}
+	}
+
+	return -1;
+
+}
+
+int Ant::randFromNotVisited() {
+	for (int i = 0; i < numOfCities; i++) {
+		if (notVisited(i)) {
+			return i;
+		} 
 	}
 }
 

@@ -105,194 +105,6 @@ int TSP::kNearestNeighbour()
 	return min;
 }
 
-// Branch And Bound Algorithm Implementation
-int TSP::BranchAndBound(bool kNN)
-{
-	int id = 1; // used to remove best matrix from memory
-	int start = 0; 
-	int nextStart = 0;
-	int upperBound;
-	int lowerBound;
-
-	vector<Matrix*> oldResults; // memory
-
-	delete reducedProblem; 
-
-	reducedProblem = new Matrix(problem); // init
-
-	// choose upper bound algorithm
-	if (kNN) {
-		upperBound = kNearestNeighbour();
-	}
-	else {
-		upperBound = nearestNeighbour(start);
-	}
-	
-	lowerBound = reducedProblem->reduceMatrix(); // reduce matrix
-
-	reducedProblem->path.push_back(start); // add start city to path
-
-	int min;
-
-	Matrix *best = new Matrix(); // matrix for best current solution
-
-	for (int i = 0; reducedProblem->path.size() < problem->size; i++) {
-
-		min = 2147483647;
-		start = nextStart;
-
-		for (int i = 0; i < problem->size; i++) {
-			// find next city to visit
-			if (!isVisited(reducedProblem->path, i)) {
-				// estimate lowerBound of every matrix
-				Matrix *matrix = new Matrix(reducedProblem);
-				matrix->id = id++;
-				matrix->reduceMatrix(start, i, lowerBound);
-				// if better than upperBound save in memory
-				if (matrix->bound < upperBound) {
-					oldResults.push_back(matrix);
-				}
-				// check if current min lowerbound
-				if (matrix->bound < min) {
-					min = matrix->bound;
-					best = matrix;
-					nextStart = i;
-				}
-			}
-		}
-
-		// remove best from memory
-		remove(oldResults, best->id);
-
-		lowerBound = best->bound;
-
-		// search (check memory) for better solution than current best 
-		reducedProblem = findBetter(oldResults, best, reducedProblem, nextStart);
-
-		lowerBound = reducedProblem->bound;
-
-	}
-
-	// solution path
-	bestPath = reducedProblem->path;
-
-	// clear vector
-	oldResults.clear();
-	oldResults.shrink_to_fit();
-
-	return lowerBound;
-}
-
-// Brute Force Implementation (use STL next_permutation)
-int TSP::bruteForceSTL()
-{
-	// order of cities to visit
-	int *order = generateOrder(problem->size);
-	// current path length
-	int length;
-	// minimum founded path length
-	int min = 2147483647; // integer max value
-
-	// check every possible solution
-	// order changes in every loop (next_permutation)
-	// (size-1)! times
-	do {
-
-		length = 0;
-
-		for (int j = 0; j < problem->size - 1; j++) {
-			length += problem->matrix[order[j]][order[j + 1]];
-		}
-
-		length += problem->matrix[order[problem->size - 1]][order[0]];
-
-		if (length < min) {
-			min = length;
-			bestPath.clear();
-			for (int i = 0; i < problem->size; i++) {
-				bestPath.push_back(order[i]);
-			}
-
-		}
-
-	} while (std::next_permutation(order + 1, order + problem->size));
-
-	delete order;
-
-	return min;
-}
-
-// Brute Force Implementation (Tree)
-int TSP::bruteForceTree()
-{
-	vector<int> order;
-	int min = 2147483647; // integer max value
-	myPermutationTree(0, order, min);
-	return min;
-}
-
-// Brute Force Implementation (Tree Faster)
-int TSP::bruteForceTreeFaster() {
-	vector<int> order;
-	vector<int> next;
-	for (int i = 1; i < problem->size; i++) {
-		next.push_back(i);
-	}
-	int min = 2147483647; // integer max value
-	myPermutationTreeFaster(0, order, next,  min);
-	return min;
-}
-
-// Brute Force Implementation (Swap)
-int TSP::bruteForceSwap()
-{
-	vector<int> order;
-	for (int i = 0; i < problem->size; i++) {
-		order.push_back(i);
-	}
-	int min = 2147483647; // integer max value
-	myPermutationSwap(order, 1, problem->size - 1, min);
-	return min;
-}
-
-// Local Search Algorithm Implementation
-int TSP::LocalSearch(int k, double maxDuration) {
-
-	Timer *stopwatch = new Timer();
-	stopwatch->start();
-
-	// use k Nearest Neighbour Algorithm to set initial solution
-	// after finding solution sets field bestPath
-	kNearestNeighbour();
-
-	// initial solution x^0
-	vector<int> order = bestPath;
-
-	// solution x'
-	vector<int> orderPrime;
-	
-	int globalMin = getSolutionLength(order);
-
-	// for k = 1,2,3... k-1
-	for (int i = 0; i < k; i++) {
-
-		int localMin = localMinimum(order);
-
-		if (localMin < globalMin) {
-			globalMin = localMin;
-			bestPath = order;
-		}
-
-		if (stopwatch->duration() > maxDuration) break;
-
-	}
-
-	stopwatch->stop();
-	delete stopwatch;
-
-	return globalMin;
-}
-
 // Tabu Search Algorithm Implementation (number of iterations, size of tabuList, cadence length of every city on tabuList,
 // neighbourhood true-Swap, false-Insert, restart after no changes during few iterations, 
 // random initial solution or using k Nearest Neighbour, aspiration criterium enabled/diabled)
@@ -386,8 +198,92 @@ int TSP::TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool 
 	return globalMin;
 }
 
+// Local Search Algorithm Implementation
+int TSP::LocalSearch(int k, bool random, double maxDuration) {
+
+	Timer *stopwatch = new Timer();
+	stopwatch->start();
+
+	// initial solution x^0
+	vector<int> order;
+
+	if (!random) {
+		// use k Nearest Neighbour Algorithm to set initial solution
+		// after finding solution sets field bestPath
+		kNearestNeighbour();
+		order = bestPath;
+	}
+	else {
+		order = generateOrderVector();
+	}
+
+	int globalMin = getSolutionLength(order);
+
+	// for k = 1,2,3... k-1
+	for (int i = 0; i < k; i++) {
+
+		int localMin = localMinimum(order);
+
+		if (localMin < globalMin) {
+			globalMin = localMin;
+			bestPath = order;
+		}
+
+		if (stopwatch->duration() > maxDuration) break;
+
+	}
+
+	stopwatch->stop();
+	delete stopwatch;
+
+	return globalMin;
+}
+
+// Simulated Annealing Implementation
+int TSP::SimulatedAnnealing(bool random, double temperature, double lambda, double maxDuration) {
+	
+	Timer *stopwatch = new Timer();
+	stopwatch->start();
+
+	// initial solution x^0
+	vector<int> order;
+
+	if (!random) {
+		// use k Nearest Neighbour Algorithm to set initial solution
+		// after finding solution sets field bestPath
+		kNearestNeighbour();
+		order = bestPath;
+	}
+	else {
+		order = generateOrderVector();
+	}
+
+	int globalMin = getSolutionLength(order);
+
+	while (temperature > 0.000001) {
+
+		int simulatedMin = simulatedMinimum(order, temperature);
+
+		if (simulatedMin < globalMin) {
+			globalMin = simulatedMin;
+			bestPath = order;
+		}
+
+		// cooling
+		temperature *= lambda;
+
+		if (stopwatch->duration() > maxDuration) break;
+
+	}
+
+	stopwatch->stop();
+	delete stopwatch;
+
+	return globalMin;
+}
+
 // Genetic Algorithm implementation
-// X : [0 - OX] [1 - PMX] [2 - EX]
+// X : [0 - OX] [1 - PMX]
 // mutation : [0-invert] [1-insert] [2-swap]
 // pM : mutation probability
 // pC : crossover probability
@@ -398,11 +294,11 @@ int TSP::GeneticAlgorithm(int populationSize, int generations, int X, int mutati
 
 	// Init population
 	vector<vector<int>> population = initPopulation(populationSize);
-	
+
 	// Fitness getSolutionLength
 	// Sort by path length
 	std::sort(population.begin(), population.end(), [this](const vector<int> & a, const vector<int> & b)
-				{ return this->getSolutionLength(a) < this->getSolutionLength(b); });
+	{ return this->getSolutionLength(a) < this->getSolutionLength(b); });
 
 	for (int i = 0; i < generations; i++) {
 
@@ -410,7 +306,7 @@ int TSP::GeneticAlgorithm(int populationSize, int generations, int X, int mutati
 		if (population.size() > populationSize) {
 			population.erase(population.begin() + populationSize, population.end());
 		}
-		
+
 		int loop = populationSize;
 		// After removing duplicates population.size() might be lower
 		if (populationSize > population.size()) {
@@ -418,10 +314,10 @@ int TSP::GeneticAlgorithm(int populationSize, int generations, int X, int mutati
 		}
 
 		// Crossover
-		for (int j = 0; j < loop; j+=2) {
+		for (int j = 0; j < loop; j += 2) {
 			// e.g. pC = 80 -> 0.8
 			if ((rand() % 100) < pC) {
-				
+
 				pair<vector<int>, vector<int>> offspring;
 
 				int x = rand() % loop;
@@ -440,8 +336,6 @@ int TSP::GeneticAlgorithm(int populationSize, int generations, int X, int mutati
 					offspring = PartiallyMappedCrossover(population[x], population[y]);
 					break;
 				default:
-					offspring.first = EdgeCrossover(population[x], population[y]);
-					offspring.second = EdgeCrossover(population[x], population[y]);
 					break;
 				}
 
@@ -470,12 +364,12 @@ int TSP::GeneticAlgorithm(int populationSize, int generations, int X, int mutati
 
 		// New population
 		std::sort(population.begin(), population.end(), [this](const vector<int> & a, const vector<int> & b)
-					{ return this->getSolutionLength(a) < this->getSolutionLength(b); });
+		{ return this->getSolutionLength(a) < this->getSolutionLength(b); });
 
-// Remove duplicates
-population.erase(unique(population.begin(), population.end()), population.end());
+		// Remove duplicates
+		population.erase(unique(population.begin(), population.end()), population.end());
 
-if (stopwatch->duration() > maxDuration) break;
+		if (stopwatch->duration() > maxDuration) break;
 
 	}
 
@@ -572,11 +466,11 @@ int TSP::AntColonyOptimization(int iterations, int set, double p, double alfa, d
 				{
 					double distance = (double)problem->matrix[first][second];
 					if ((int)distance == 0) {
-						distance = 0.1;
+						distance = 1.0;
 					}
 					pheromoneMap[first][second] += qt / distance;
-					}
-					break;
+				}
+				break;
 				default:
 					// CAS - Ant Cycle
 					double cycle = (double)getSolutionLength(path);
@@ -603,7 +497,7 @@ int TSP::AntColonyOptimization(int iterations, int set, double p, double alfa, d
 		if (length < minLength) {
 			minLength = length;
 			bestPath = ants[i]->getPath();
-		} 
+		}
 	}
 
 	// free memory
@@ -624,6 +518,156 @@ int TSP::AntColonyOptimization(int iterations, int set, double p, double alfa, d
 	delete stopwatch;
 
 	return minLength;
+}
+
+// Brute Force Implementation (use STL next_permutation)
+int TSP::bruteForceSTL()
+{
+	// order of cities to visit
+	int *order = generateOrder(problem->size);
+	// current path length
+	int length;
+	// minimum founded path length
+	int min = 2147483647; // integer max value
+
+	// check every possible solution
+	// order changes in every loop (next_permutation)
+	// (size-1)! times
+	do {
+
+		length = 0;
+
+		for (int j = 0; j < problem->size - 1; j++) {
+			length += problem->matrix[order[j]][order[j + 1]];
+		}
+
+		length += problem->matrix[order[problem->size - 1]][order[0]];
+
+		if (length < min) {
+			min = length;
+			bestPath.clear();
+			for (int i = 0; i < problem->size; i++) {
+				bestPath.push_back(order[i]);
+			}
+
+		}
+
+	} while (std::next_permutation(order + 1, order + problem->size));
+
+	delete order;
+
+	return min;
+}
+
+// Brute Force Implementation (Tree)
+int TSP::bruteForceTree()
+{
+	vector<int> order;
+	int min = 2147483647; // integer max value
+	myPermutationTree(0, order, min);
+	return min;
+}
+
+// Brute Force Implementation (Tree Faster)
+int TSP::bruteForceTreeFaster() {
+	vector<int> order;
+	vector<int> next;
+	for (int i = 1; i < problem->size; i++) {
+		next.push_back(i);
+	}
+	int min = 2147483647; // integer max value
+	myPermutationTreeFaster(0, order, next,  min);
+	return min;
+}
+
+// Brute Force Implementation (Swap)
+int TSP::bruteForceSwap()
+{
+	vector<int> order;
+	for (int i = 0; i < problem->size; i++) {
+		order.push_back(i);
+	}
+	int min = 2147483647; // integer max value
+	myPermutationSwap(order, 1, problem->size - 1, min);
+	return min;
+}
+
+// Branch And Bound Algorithm Implementation (really bad implementation :/)
+int TSP::BranchAndBound(bool kNN)
+{
+	int id = 1; // used to remove best matrix from memory
+	int start = 0;
+	int nextStart = 0;
+	int upperBound;
+	int lowerBound;
+
+	vector<Matrix*> oldResults; // memory
+
+	delete reducedProblem;
+
+	reducedProblem = new Matrix(problem); // init
+
+	// choose upper bound algorithm
+	if (kNN) {
+		upperBound = kNearestNeighbour();
+	}
+	else {
+		upperBound = nearestNeighbour(start);
+	}
+
+	lowerBound = reducedProblem->reduceMatrix(); // reduce matrix
+
+	reducedProblem->path.push_back(start); // add start city to path
+
+	int min;
+
+	Matrix *best = new Matrix(); // matrix for best current solution
+
+	for (int i = 0; reducedProblem->path.size() < problem->size; i++) {
+
+		min = 2147483647;
+		start = nextStart;
+
+		for (int i = 0; i < problem->size; i++) {
+			// find next city to visit
+			if (!isVisited(reducedProblem->path, i)) {
+				// estimate lowerBound of every matrix
+				Matrix *matrix = new Matrix(reducedProblem);
+				matrix->id = id++;
+				matrix->reduceMatrix(start, i, lowerBound);
+				// if better than upperBound save in memory
+				if (matrix->bound < upperBound) {
+					oldResults.push_back(matrix);
+				}
+				// check if current min lowerbound
+				if (matrix->bound < min) {
+					min = matrix->bound;
+					best = matrix;
+					nextStart = i;
+				}
+			}
+		}
+
+		// remove best from memory
+		remove(oldResults, best->id);
+
+		lowerBound = best->bound;
+
+		// search (check memory) for better solution than current best 
+		reducedProblem = findBetter(oldResults, best, reducedProblem, nextStart);
+
+		lowerBound = reducedProblem->bound;
+
+	}
+
+	// solution path
+	bestPath = reducedProblem->path;
+
+	// clear vector
+	oldResults.clear();
+	oldResults.shrink_to_fit();
+
+	return lowerBound;
 }
 
 // display population (Genetic Algorithm)
@@ -950,6 +994,50 @@ int TSP::localMinimum(std::vector<int> &order) {
 	return min;
 }
 
+// return local minimum found in neighbourhood (LocalSearch Algorithm)
+int TSP::simulatedMinimum(std::vector<int> &order, double temperature) {
+
+	int min = getSolutionLength(order);
+
+	std::vector<int> bestLocalOrder = order;
+
+	// generating all solutions in neighbourhood
+	for (int i = 1; i < problem->size; i++) {
+		for (int j = 1; j < problem->size; j++) {
+
+			if (i != j) {
+
+				std::vector<int> copyOrder = order;
+
+				neighbourhoodSwap(copyOrder, i, j);
+
+				int length = getSolutionLength(copyOrder);
+
+				if (length < min) {
+					min = length;
+					bestLocalOrder = copyOrder;
+				}
+				else {
+					double r = ((double)rand() / (RAND_MAX));
+					if (r == 1) {
+						r = 0.99;
+					}
+					double e = exp(((double)(min - length))/temperature);
+					if (r < e) {
+						min = length;
+						bestLocalOrder = copyOrder;
+					}
+				}
+
+			}
+		}
+	}
+
+	order = bestLocalOrder;
+
+	return min;
+}
+
 // compare two orders if equal return true
 bool TSP::equals(std::vector<int> order, std::vector<int> initOrder) {
 	for (int i = 0; i < order.size(); i++) {
@@ -1145,59 +1233,6 @@ int TSP::getNthPair(std::vector<std::pair<int, int>> pairs, int city, int n) {
 	}
 
 	return city;
-}
-
-// EX implementation (GeneticAlgorithm)
-std::vector<int> TSP::EdgeCrossover(std::vector<int> p, std::vector<int> q) {
-	
-	std::vector<int> offspring;
-
-	std::vector<vector<int>> neighbourhood(p.size());
-
-	for (int i = 0; i < p.size(); i++) {
-
-		if (i == 0) {
-			neighbourhood[p[i]].push_back(p[p.size() - 1]);
-			neighbourhood[q[i]].push_back(q[q.size() - 1]);
-		}
-		else {
-			neighbourhood[p[i]].push_back(p[(i - 1) % p.size()]);
-			neighbourhood[q[i]].push_back(q[(i - 1) % q.size()]);
-		}
-		
-		neighbourhood[p[i]].push_back(p[(i + 1) % p.size()]);
-		neighbourhood[q[i]].push_back(q[(i + 1) % q.size()]);
-		
-	}
-
-	vector<int> unpicked = generateOrderVector();
-
-	int currentCity = unpicked[0];
-	unpicked.erase(unpicked.begin());
-	removeFromNeighbourhood(neighbourhood, currentCity);
-	offspring.push_back(currentCity);
-
-	int next;
-
-	while (offspring.size() != p.size()) {
-
-		if (neighbourhood[currentCity].size() > 0) {
-			next = findReachedFromBoth(neighbourhood, currentCity);
-			if (next == -1) {
-				next = findNearest(neighbourhood, currentCity);
-			}
-		}
-		else {
-			next = randCityFromUnpicked(unpicked);
-		}
-
-		removeFromUnpicked(unpicked, next);
-		removeFromNeighbourhood(neighbourhood, next);
-		offspring.push_back(next);
-		currentCity = next;
-	}
-
-	return offspring;
 }
 
 // find city reached from both parents (EX)

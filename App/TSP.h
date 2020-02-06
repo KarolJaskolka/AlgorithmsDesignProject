@@ -36,12 +36,14 @@ private:
 	void neighbourhoodInsert(std::vector<int> &order, int x, int y);
 	bool equals(std::vector<int> order, std::vector<int> initOrder);
 
+	// Simulated Annealing
+	int simulatedMinimum(std::vector<int> &order, double temperature);
+
 	// Genetic Algorithm 
 	void showPopulation(std::vector<std::vector<int>> population);
 	std::vector<std::vector<int>> initPopulation(int populationSize);
 	std::pair<std::vector<int>, std::vector<int>> PartiallyMappedCrossover(std::vector<int> p, std::vector<int> q);
 	std::pair<std::vector<int>, std::vector<int>> OrderedCrossover(std::vector<int> p, std::vector<int> q);
-	std::vector<int> EdgeCrossover(std::vector<int> p, std::vector<int> q);
 	void inversionMutation(std::vector<int> &individual);
 	void insertionMutation(std::vector<int> &individual);
 	void transpositionMutation(std::vector<int> &individual);
@@ -78,9 +80,10 @@ public:
 	int kNearestNeighbour();
 
 	// 2
-	int LocalSearch(int k, double maxDuration);
+	int LocalSearch(int k, bool random, double maxDuration);
 	int TabuSearch(int iterations, int tabuSize, int cadence, bool SwapN, bool diversification, bool random, bool aspiration, double maxDuration);
-	
+	int SimulatedAnnealing(bool random, double temperature, double lambda, double maxDuration);
+
 	// 3
 	int GeneticAlgorithm(int populationSize, int generations, int X, int mutation, int pM, int pC, double maxDuration);
 	int AntColonyOptimization(int iterations, int set, double p, double alfa, double beta, double t0, double qt, double maxDuration);

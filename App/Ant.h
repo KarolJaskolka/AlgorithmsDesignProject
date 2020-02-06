@@ -12,6 +12,7 @@ private:
 	int numOfCities;
 
 	bool notVisited(int nextCity);
+	int randFromNotVisited();
 
 public:
 	
@@ -24,6 +25,7 @@ public:
 	void showMap();
 	void showPheromoneMap();
 	void showPath();
+	int roulette(std::vector<double> prob);
 	std::vector<int> getPath();
 };
 

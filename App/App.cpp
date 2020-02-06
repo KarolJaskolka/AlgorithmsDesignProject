@@ -40,16 +40,17 @@ int main()
 	cout << "File name : ";
 	cin >> fileName;
 
-	int index = -1, maxDuration, bestPath;
+	int index = -1, bestPath;
 
 	for (int i = 0; i < 33; i++) {
 		if (fileName == files[i]) {
 			index = i;
 		}
 	}
-
+	
 	if (index != -1) {
 		
+		double maxDuration;
 		cout << "Max duration time [ms] : ";
 		cin >> maxDuration;
 
@@ -63,6 +64,38 @@ int main()
 		cout << "--------------------------------------------------------------------------------------------------\n";
 		cout << "Time : " << timer->result() << " ms | ";
 		cout << "K Nearest Neighbour : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
+
+		timer->start();
+		bestPath = tsp->LocalSearch(1000000, true, maxDuration);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Local Search Rand : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
+
+		timer->start();
+		bestPath = tsp->LocalSearch(1000000, false, maxDuration);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Local Search kNN : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
+
+		timer->start();
+		bestPath = tsp->SimulatedAnnealing(true, 10000, 0.999, maxDuration);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Simulated Annealing Rand : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
+		//tsp->showBestPath();
+
+		timer->start();
+		bestPath = tsp->SimulatedAnnealing(false, 10000, 0.999, maxDuration);
+		timer->stop();
+		cout << "--------------------------------------------------------------------------------------------------\n";
+		cout << "Time : " << timer->result() << " ms | ";
+		cout << "Simulated Annealing kNN : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
 		//tsp->showBestPath();
 
 		timer->start();
@@ -146,30 +179,6 @@ int main()
 		//tsp->showBestPath();
 
 		timer->start();
-		bestPath = tsp->GeneticAlgorithm(100, 1000000, 2, 0, 1, 80, maxDuration);
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Genetic Algorithm EX Invert : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
-		//tsp->showBestPath();
-
-		timer->start();
-		bestPath = tsp->GeneticAlgorithm(100, 1000000, 2, 1, 1, 80, maxDuration);
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Genetic Algorithm EX Insert : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
-		//tsp->showBestPath();
-
-		timer->start();
-		bestPath = tsp->GeneticAlgorithm(100, 1000000, 2, 2, 1, 80, maxDuration);
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Genetic Algorithm EX Swap : " << bestPath << " Error " << error(best[index], bestPath) << " %" << endl;
-		//tsp->showBestPath();
-
-		timer->start();
 		bestPath = tsp->AntColonyOptimization(1000000, 0, 0.5, 1, 2, 0.05, 0.1, maxDuration);
 		timer->stop();
 		cout << "--------------------------------------------------------------------------------------------------\n";
@@ -198,52 +207,7 @@ int main()
 	else {
 		cout << "File Not Found" << endl;
 	}
-	
-	/*
-	for (int i = 0; i < 33; i++) {
 
-		TSP *tsp = new TSP("Data/" + files[i]);
-
-		cout << " Best: " << best[i] << endl;
-
-		timer->start();
-		bestPath = tsp->GeneticAlgorithm(100, 1000000, 0, 2, 1, 80, 1000);
-		timer->stop();
-		cout << "--------------------------------------------------------------------------------------------------\n";
-		cout << "Time : " << timer->result() << " ms | ";
-		cout << "Genetic Algorithm OX Swap : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-
-		//timer->start();
-		//bestPath = tsp->bruteForceSTL();
-		//timer->stop();
-		//cout << "--------------------------------------------------------------------------------------------------\n";
-		//cout << "Time : " << timer->result() << " ms | ";
-		//cout << "Brute Force (STL) : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		//tsp->showBestPath();
-
-		//timer->start();
-		//bestPath = tsp->BranchAndBound(false);
-		//timer->stop();
-		//cout << "--------------------------------------------------------------------------------------------------\n";
-		//cout << "Time : " << timer->result() << " ms | ";
-		//cout << "Branch And Bound NN[0] : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		//tsp->showBestPath();
-
-		//timer->start();
-		//bestPath = tsp->BranchAndBound(true);
-		//timer->stop();
-		//cout << "--------------------------------------------------------------------------------------------------\n";
-		//cout << "Time : " << timer->result() << " ms | ";
-		//cout << "Branch And Bound kNN : " << bestPath << " Error " << error(best[i], bestPath) << " %" << endl;
-		//tsp->showBestPath();
-
-		cout << "--------------------------------------------------------------------------------------------------\n";
-
-		delete tsp;
-		
-	}
-	*/
-	
 	delete timer;
 
 	return 0;
